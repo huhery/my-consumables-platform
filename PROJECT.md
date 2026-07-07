@@ -2,7 +2,7 @@
 
 > 本文档是项目的单一权威说明。任何人（或 AI）拿到本文档，无需额外背景即可理解项目全貌、在此基础上迭代升级、部署运维。
 >
-> 最后更新：2026-07（第三期多租户改造完成）
+> 最后更新：2026-07（第三期多租户改造完成 + Jackson 序列化修复 + 商家有效期/续期 + JOIN 别名修复）
 
 ---
 
@@ -187,7 +187,7 @@ my-consumables-platform/
 | TAB_PAYABLE | 财务 | 应付账款 | ✅ |
 | TAB_FUND_FLOW | 财务 | 资金流水（收款/付款/费用/收入统一台账） | ✅ |
 | TAB_EXPENSE_CATEGORY | 财务 | 费用/收入分类 | ✅ |
-| TAB_TENANT | 平台 | 租户（商家） | ❌平台表 |
+| TAB_TENANT | 平台 | 租户（商家，含到期日期） | ❌平台表 |
 | TAB_ACCOUNT | 平台 | 账号（一租户N账号+角色） | ❌平台表 |
 
 **唯一性约束**（均为租户内唯一，组合唯一索引 `S_TENANT_ID + 字段`）：
@@ -198,6 +198,7 @@ my-consumables-platform/
 - `V1__init_schema.sql`：第一期 11 张业务表
 - `V2__finance_schema.sql`：第二期 4 张财务表 + 销售单加期望送达日期
 - `V3__multitenancy_schema.sql`：租户/账号表 + 15 张业务表加租户字段 + 唯一性改造
+- `V4__tenant_expire.sql`：租户表增加到期日期字段 D_EXPIRE_DATE
 
 ---
 
@@ -214,6 +215,9 @@ my-consumables-platform/
 7. **一级缓存作用域=STATEMENT**：防止同会话跨租户查询命中缓存串数据（关键安全配置）。
 8. **审计+租户自动填充**：MyBatis 拦截器在 INSERT 时自动填充 UUID 主键、审计字段、租户ID，业务代码零感知。
 9. **JWT 无状态认证**：多端通用（Web 现用，App/小程序可复用），不依赖 Cookie/Session。
+10. **Jackson 按字段名直接序列化**：全局配置 `JacksonConfig`（FIELD 可见性，关闭 GETTER 推断），避免 Lombok getter 命名（如 `getSName`→Jackson 误推为 `SName`）与属性推断不兼容。所有实体/VO 的 JSON key 与 Java 字段名一致。
+11. **租户拦截器带主表别名**：追加 `WHERE 主表别名.S_TENANT_ID = ?`，避免 JOIN 场景列名歧义。
+12. **商家有效期管理**：`TAB_TENANT.D_EXPIRE_DATE` 到期日期字段；开通商家时设有效期（默认 1 年）；登录校验到期（过期拒登提示续费）；平台管理员可续期。
 
 ### 系统不变量（测试守护）
 
@@ -239,8 +243,21 @@ my-consumables-platform/
 
 ## 7. 功能清单（按模块）
 
-### 平台侧（平台管理员）
-- 商家开通（建租户 + 初始商家账号）、启用/停用、商家分页查询
+### 平台侧（平台管理员 / 超级管理员）
+
+> **超级管理员**即"平台管理员"（角色 `RoleType.PLATFORM_ADMIN`），是平台运营方的最高权限账号。
+> 默认账号在后端**首次启动时自动创建**（由 `PlatformAdminInitializer` 执行），登录名与初始密码通过 `application.yml` 配置：
+>
+> ```yaml
+> consumables:
+>   platform-admin:
+>     login-name: admin       # 默认登录名
+>     password: admin123      # 默认初始密码（生产务必修改！）
+> ```
+>
+> 超级管理员登录后进入"商家管理"界面，可管理所有商家，看不到业务数据（不归属任何租户）。
+
+- 商家开通（建租户 + 初始商家账号 + 有效期）、启用/停用、续期、商家分页查询
 
 ### 基础数据（商家）
 - 商品档案 CRUD + 编码唯一 + 使用中禁改基本单位/禁删
@@ -274,7 +291,7 @@ my-consumables-platform/
 ## 8. API 清单（统一前缀 /api，统一返回 RestApiResultVo）
 
 **认证**：`POST /auth/login`、`POST /auth/logout`
-**平台管理**（仅平台管理员）：`POST /platform/tenant`、`GET /platform/tenant/page`、`POST /platform/tenant/{id}/enable|disable`
+**平台管理**（仅平台管理员）：`POST /platform/tenant`、`GET /platform/tenant/page`、`POST /platform/tenant/{id}/enable|disable`、`POST /platform/tenant/{id}/renew?years=N`（续期）
 **商品**：`POST|PUT|DELETE /goods`、`GET /goods/page`、`GET|POST /goods/{id}/units`、`DELETE /goods/units/{unitId}`
 **库存地点/客户/供应商**：`/warehouse`、`/customer`、`/supplier` 各 CRUD + `/page`
 **库存**：`GET /stock/page`、`GET /stock/flow/page`、`POST /stock/adjust`

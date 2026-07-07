@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.finance.payable.mapper.PayableMapper">
+
+    <resultMap id="payableResultMap" type="com.company.consumables.finance.payable.entity.Payable">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_PURCHASE_ID" property="sPurchaseId"/>
+        <result column="S_SUPPLIER_ID" property="sSupplierId"/>
+        <result column="I_TOTAL_AMOUNT" property="iTotalAmount"/>
+        <result column="I_PAID_AMOUNT" property="iPaidAmount"/>
+        <result column="I_STATUS" property="iStatus"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.finance.payable.entity.Payable">
+        INSERT INTO TAB_PAYABLE
+        (S_ID, S_TENANT_ID, S_PURCHASE_ID, S_SUPPLIER_ID, I_TOTAL_AMOUNT, I_PAID_AMOUNT, I_STATUS,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sPurchaseId}, #{sSupplierId}, #{iTotalAmount}, #{iPaidAmount}, #{iStatus},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectByPurchaseId" resultMap="payableResultMap">
+        SELECT S_ID, S_PURCHASE_ID, S_SUPPLIER_ID, I_TOTAL_AMOUNT, I_PAID_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PAYABLE
+        WHERE S_PURCHASE_ID = #{purchaseId}
+    </select>
+
+    <update id="updatePaid">
+        UPDATE TAB_PAYABLE
+        SET I_PAID_AMOUNT = #{paidAmount},
+            I_STATUS = #{status},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sSupplierId != null and sSupplierId != ''">
+                AND S_SUPPLIER_ID = #{sSupplierId}
+            </if>
+            <if test="iStatus != null">
+                AND I_STATUS = #{iStatus}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="payableResultMap">
+        SELECT S_ID, S_PURCHASE_ID, S_SUPPLIER_ID, I_TOTAL_AMOUNT, I_PAID_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PAYABLE
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_PAYABLE
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="summaryBySupplier" resultType="com.company.consumables.finance.payable.vo.PayableSummaryVo">
+        SELECT p.S_SUPPLIER_ID       AS sSupplierId,
+               s.S_NAME              AS sSupplierName,
+               SUM(p.I_TOTAL_AMOUNT) AS iTotalAmount,
+               SUM(p.I_PAID_AMOUNT)  AS iPaidAmount,
+               SUM(p.I_TOTAL_AMOUNT - p.I_PAID_AMOUNT) AS iUnpaidAmount
+        FROM TAB_PAYABLE p
+        LEFT JOIN TAB_SUPPLIER s ON s.S_ID = p.S_SUPPLIER_ID
+        GROUP BY p.S_SUPPLIER_ID, s.S_NAME
+        ORDER BY iUnpaidAmount DESC
+    </select>
+
+    <select id="selectBySupplierId" resultMap="payableResultMap">
+        SELECT S_ID, S_PURCHASE_ID, S_SUPPLIER_ID, I_TOTAL_AMOUNT, I_PAID_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PAYABLE
+        WHERE S_SUPPLIER_ID = #{supplierId}
+        ORDER BY DT_CREATE_TIME DESC
+    </select>
+
+    <select id="sumUnpaid" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(I_TOTAL_AMOUNT - I_PAID_AMOUNT), 0) FROM TAB_PAYABLE
+    </select>
+
+</mapper>

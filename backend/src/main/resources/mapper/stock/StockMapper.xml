@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.stock.mapper.StockMapper">
+
+    <resultMap id="stockResultMap" type="com.company.consumables.stock.entity.Stock">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_GOODS_ID" property="sGoodsId"/>
+        <result column="S_WAREHOUSE_ID" property="sWarehouseId"/>
+        <result column="I_QTY" property="iQty"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.stock.entity.Stock">
+        INSERT INTO TAB_STOCK
+        (S_ID, S_TENANT_ID, S_GOODS_ID, S_WAREHOUSE_ID, I_QTY,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sGoodsId}, #{sWarehouseId}, #{iQty},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectByGoodsAndWarehouse" resultMap="stockResultMap">
+        SELECT S_ID, S_GOODS_ID, S_WAREHOUSE_ID, I_QTY,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_STOCK
+        WHERE S_GOODS_ID = #{goodsId} AND S_WAREHOUSE_ID = #{warehouseId}
+    </select>
+
+    <update id="increaseQty">
+        UPDATE TAB_STOCK
+        SET I_QTY = I_QTY + #{qty},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_GOODS_ID = #{goodsId} AND S_WAREHOUSE_ID = #{warehouseId}
+    </update>
+
+    <!-- 条件扣减：仅当库存充足时才更新，依据影响行数判断是否成功，防超卖 -->
+    <update id="deductQtyIfEnough">
+        UPDATE TAB_STOCK
+        SET I_QTY = I_QTY - #{qty},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_GOODS_ID = #{goodsId}
+          AND S_WAREHOUSE_ID = #{warehouseId}
+          AND I_QTY &gt;= #{qty}
+    </update>
+
+    <update id="adjustQty">
+        UPDATE TAB_STOCK
+        SET I_QTY = I_QTY + #{changeQty},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_GOODS_ID = #{goodsId} AND S_WAREHOUSE_ID = #{warehouseId}
+    </update>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sGoodsId != null and sGoodsId != ''">
+                AND S_GOODS_ID = #{sGoodsId}
+            </if>
+            <if test="sWarehouseId != null and sWarehouseId != ''">
+                AND S_WAREHOUSE_ID = #{sWarehouseId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="stockResultMap">
+        SELECT S_ID, S_GOODS_ID, S_WAREHOUSE_ID, I_QTY,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_STOCK
+        <include refid="pageCondition"/>
+        ORDER BY DT_UPDATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_STOCK
+        <include refid="pageCondition"/>
+    </select>
+
+</mapper>

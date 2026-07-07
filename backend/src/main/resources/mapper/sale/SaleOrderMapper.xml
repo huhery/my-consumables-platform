@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.sale.mapper.SaleOrderMapper">
+
+    <resultMap id="saleOrderResultMap" type="com.company.consumables.sale.entity.SaleOrder">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_SALE_NO" property="sSaleNo"/>
+        <result column="I_SALE_TYPE" property="iSaleType"/>
+        <result column="S_CUSTOMER_ID" property="sCustomerId"/>
+        <result column="S_WAREHOUSE_ID" property="sWarehouseId"/>
+        <result column="I_STATUS" property="iStatus"/>
+        <result column="I_TOTAL_AMOUNT" property="iTotalAmount"/>
+        <result column="DT_SHIP_TIME" property="dtShipTime"/>
+        <result column="D_EXPECT_DELIVERY" property="dExpectDelivery"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.sale.entity.SaleOrder">
+        INSERT INTO TAB_SALE_ORDER
+        (S_ID, S_TENANT_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sSaleNo}, #{iSaleType}, #{sCustomerId}, #{sWarehouseId}, #{iStatus}, #{iTotalAmount}, #{dtShipTime}, #{dExpectDelivery},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectById" resultMap="saleOrderResultMap">
+        SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_SALE_ORDER
+        WHERE S_ID = #{sId}
+    </select>
+
+    <update id="updateStatusShipped">
+        UPDATE TAB_SALE_ORDER
+        SET I_STATUS = #{status},
+            DT_SHIP_TIME = #{shipTime},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <update id="updateTotalAmount">
+        UPDATE TAB_SALE_ORDER
+        SET I_TOTAL_AMOUNT = #{totalAmount},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sCustomerId != null and sCustomerId != ''">
+                AND S_CUSTOMER_ID = #{sCustomerId}
+            </if>
+            <if test="sWarehouseId != null and sWarehouseId != ''">
+                AND S_WAREHOUSE_ID = #{sWarehouseId}
+            </if>
+            <if test="iSaleType != null">
+                AND I_SALE_TYPE = #{iSaleType}
+            </if>
+            <if test="iStatus != null">
+                AND I_STATUS = #{iStatus}
+            </if>
+            <if test="startTime != null">
+                AND DT_CREATE_TIME &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND DT_CREATE_TIME &lt;= #{endTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="saleOrderResultMap">
+        SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_SALE_ORDER
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_SALE_ORDER
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="selectDeliveryReminder" resultMap="saleOrderResultMap">
+        SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_SALE_ORDER
+        WHERE I_SALE_TYPE = 1 AND I_STATUS = 1
+        ORDER BY D_EXPECT_DELIVERY ASC
+    </select>
+
+</mapper>

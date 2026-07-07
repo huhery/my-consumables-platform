@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.finance.fund.mapper.FundFlowMapper">
+
+    <resultMap id="fundFlowResultMap" type="com.company.consumables.finance.fund.entity.FundFlow">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="I_FLOW_TYPE" property="iFlowType"/>
+        <result column="I_DIRECTION" property="iDirection"/>
+        <result column="I_AMOUNT" property="iAmount"/>
+        <result column="S_PARTY_ID" property="sPartyId"/>
+        <result column="S_SOURCE_NO" property="sSourceNo"/>
+        <result column="S_CATEGORY_ID" property="sCategoryId"/>
+        <result column="D_OCCUR_DATE" property="dOccurDate"/>
+        <result column="S_REMARK" property="sRemark"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.finance.fund.entity.FundFlow">
+        INSERT INTO TAB_FUND_FLOW
+        (S_ID, S_TENANT_ID, I_FLOW_TYPE, I_DIRECTION, I_AMOUNT, S_PARTY_ID, S_SOURCE_NO, S_CATEGORY_ID, D_OCCUR_DATE, S_REMARK,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{iFlowType}, #{iDirection}, #{iAmount}, #{sPartyId}, #{sSourceNo}, #{sCategoryId}, #{dOccurDate}, #{sRemark},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="iFlowType != null">
+                AND I_FLOW_TYPE = #{iFlowType}
+            </if>
+            <if test="startDate != null">
+                AND D_OCCUR_DATE &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND D_OCCUR_DATE &lt;= #{endDate}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="fundFlowResultMap">
+        SELECT S_ID, I_FLOW_TYPE, I_DIRECTION, I_AMOUNT, S_PARTY_ID, S_SOURCE_NO, S_CATEGORY_ID, D_OCCUR_DATE, S_REMARK,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_FUND_FLOW
+        <include refid="pageCondition"/>
+        ORDER BY D_OCCUR_DATE DESC, DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_FUND_FLOW
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="sumAmountByDirection" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(I_AMOUNT), 0)
+        FROM TAB_FUND_FLOW
+        WHERE I_DIRECTION = #{direction}
+        <if test="startDate != null">
+            AND D_OCCUR_DATE &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND D_OCCUR_DATE &lt;= #{endDate}
+        </if>
+    </select>
+
+    <select id="countByCategoryId" resultType="int">
+        SELECT COUNT(*) FROM TAB_FUND_FLOW WHERE S_CATEGORY_ID = #{categoryId}
+    </select>
+
+    <select id="summaryByCategory" resultType="com.company.consumables.finance.report.vo.ExpenseSummaryVo">
+        SELECT f.S_CATEGORY_ID   AS sCategoryId,
+               c.S_NAME          AS sCategoryName,
+               SUM(f.I_AMOUNT)   AS iAmount
+        FROM TAB_FUND_FLOW f
+        LEFT JOIN TAB_EXPENSE_CATEGORY c ON c.S_ID = f.S_CATEGORY_ID
+        WHERE f.I_FLOW_TYPE = #{flowType}
+        <if test="startDate != null">
+            AND f.D_OCCUR_DATE &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND f.D_OCCUR_DATE &lt;= #{endDate}
+        </if>
+        GROUP BY f.S_CATEGORY_ID, c.S_NAME
+        ORDER BY iAmount DESC
+    </select>
+
+</mapper>

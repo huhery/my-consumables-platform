@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.basedata.goods.mapper.GoodsUnitMapper">
+
+    <resultMap id="goodsUnitResultMap" type="com.company.consumables.basedata.goods.entity.GoodsUnit">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_GOODS_ID" property="sGoodsId"/>
+        <result column="S_UNIT_NAME" property="sUnitName"/>
+        <result column="I_CONVERT_RATE" property="iConvertRate"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.basedata.goods.entity.GoodsUnit">
+        INSERT INTO TAB_GOODS_UNIT
+        (S_ID, S_TENANT_ID, S_GOODS_ID, S_UNIT_NAME, I_CONVERT_RATE,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sGoodsId}, #{sUnitName}, #{iConvertRate},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM TAB_GOODS_UNIT WHERE S_ID = #{sId}
+    </delete>
+
+    <delete id="deleteByGoodsId">
+        DELETE FROM TAB_GOODS_UNIT WHERE S_GOODS_ID = #{goodsId}
+    </delete>
+
+    <select id="selectById" resultMap="goodsUnitResultMap">
+        SELECT S_ID, S_GOODS_ID, S_UNIT_NAME, I_CONVERT_RATE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_GOODS_UNIT
+        WHERE S_ID = #{sId}
+    </select>
+
+    <select id="selectByGoodsId" resultMap="goodsUnitResultMap">
+        SELECT S_ID, S_GOODS_ID, S_UNIT_NAME, I_CONVERT_RATE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_GOODS_UNIT
+        WHERE S_GOODS_ID = #{goodsId}
+        ORDER BY I_CONVERT_RATE ASC
+    </select>
+
+    <select id="countByGoodsIdAndName" resultType="int">
+        SELECT COUNT(*)
+        FROM TAB_GOODS_UNIT
+        WHERE S_GOODS_ID = #{goodsId} AND S_UNIT_NAME = #{unitName}
+    </select>
+
+    <select id="selectByGoodsIdAndName" resultMap="goodsUnitResultMap">
+        SELECT S_ID, S_GOODS_ID, S_UNIT_NAME, I_CONVERT_RATE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_GOODS_UNIT
+        WHERE S_GOODS_ID = #{goodsId} AND S_UNIT_NAME = #{unitName}
+        LIMIT 1
+    </select>
+
+</mapper>

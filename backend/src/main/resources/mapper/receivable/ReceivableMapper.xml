@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.finance.receivable.mapper.ReceivableMapper">
+
+    <resultMap id="receivableResultMap" type="com.company.consumables.finance.receivable.entity.Receivable">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_SALE_ID" property="sSaleId"/>
+        <result column="S_CUSTOMER_ID" property="sCustomerId"/>
+        <result column="I_TOTAL_AMOUNT" property="iTotalAmount"/>
+        <result column="I_RECEIVED_AMOUNT" property="iReceivedAmount"/>
+        <result column="I_STATUS" property="iStatus"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.finance.receivable.entity.Receivable">
+        INSERT INTO TAB_RECEIVABLE
+        (S_ID, S_TENANT_ID, S_SALE_ID, S_CUSTOMER_ID, I_TOTAL_AMOUNT, I_RECEIVED_AMOUNT, I_STATUS,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sSaleId}, #{sCustomerId}, #{iTotalAmount}, #{iReceivedAmount}, #{iStatus},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectBySaleId" resultMap="receivableResultMap">
+        SELECT S_ID, S_SALE_ID, S_CUSTOMER_ID, I_TOTAL_AMOUNT, I_RECEIVED_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_RECEIVABLE
+        WHERE S_SALE_ID = #{saleId}
+    </select>
+
+    <update id="updateReceived">
+        UPDATE TAB_RECEIVABLE
+        SET I_RECEIVED_AMOUNT = #{receivedAmount},
+            I_STATUS = #{status},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sCustomerId != null and sCustomerId != ''">
+                AND S_CUSTOMER_ID = #{sCustomerId}
+            </if>
+            <if test="iStatus != null">
+                AND I_STATUS = #{iStatus}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="receivableResultMap">
+        SELECT S_ID, S_SALE_ID, S_CUSTOMER_ID, I_TOTAL_AMOUNT, I_RECEIVED_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_RECEIVABLE
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_RECEIVABLE
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="summaryByCustomer" resultType="com.company.consumables.finance.receivable.vo.ReceivableSummaryVo">
+        SELECT r.S_CUSTOMER_ID          AS sCustomerId,
+               c.S_NAME                 AS sCustomerName,
+               SUM(r.I_TOTAL_AMOUNT)    AS iTotalAmount,
+               SUM(r.I_RECEIVED_AMOUNT) AS iReceivedAmount,
+               SUM(r.I_TOTAL_AMOUNT - r.I_RECEIVED_AMOUNT) AS iUnreceivedAmount
+        FROM TAB_RECEIVABLE r
+        LEFT JOIN TAB_CUSTOMER c ON c.S_ID = r.S_CUSTOMER_ID
+        GROUP BY r.S_CUSTOMER_ID, c.S_NAME
+        ORDER BY iUnreceivedAmount DESC
+    </select>
+
+    <select id="selectByCustomerId" resultMap="receivableResultMap">
+        SELECT S_ID, S_SALE_ID, S_CUSTOMER_ID, I_TOTAL_AMOUNT, I_RECEIVED_AMOUNT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_RECEIVABLE
+        WHERE S_CUSTOMER_ID = #{customerId}
+        ORDER BY DT_CREATE_TIME DESC
+    </select>
+
+    <select id="sumUnreceived" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(I_TOTAL_AMOUNT - I_RECEIVED_AMOUNT), 0) FROM TAB_RECEIVABLE
+    </select>
+
+</mapper>

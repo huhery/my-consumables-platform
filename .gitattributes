@@ -1,0 +1,8 @@
+# 强制 shell 脚本始终使用 LF 换行（Linux 格式），避免 Windows CRLF 导致服务器执行报错
+*.sh text eol=lf
+
+# Dockerfile 同理
+Dockerfile text eol=lf
+
+# 其余文件按 Git 默认处理
+* text=auto

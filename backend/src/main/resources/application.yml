@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: consumables-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:CONSUMABLES}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      pool-name: ConsumablesHikariPool
+  # Flyway 数据库迁移
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    encoding: UTF-8
+
+# MyBatis 配置
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.company.consumables
+  configuration:
+    # 下划线列名自动映射为驼峰属性（如 S_NAME -> sName）
+    map-underscore-to-camel-case: false
+    # 打印 SQL 日志，便于开发期排查
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 多租户隔离：一级缓存作用域设为 STATEMENT，避免同一会话内跨租户查询命中缓存导致串数据
+    local-cache-scope: statement
+
+# 业务自定义配置
+consumables:
+  # 第一期免登录，审计字段默认操作人
+  audit:
+    default-user: admin
+
+logging:
+  level:
+    com.company.consumables: debug

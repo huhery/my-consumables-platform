@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.basedata.supplier.mapper.SupplierMapper">
+
+    <resultMap id="supplierResultMap" type="com.company.consumables.basedata.supplier.entity.Supplier">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_NAME" property="sName"/>
+        <result column="S_CONTACT" property="sContact"/>
+        <result column="S_PHONE" property="sPhone"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.basedata.supplier.entity.Supplier">
+        INSERT INTO TAB_SUPPLIER
+        (S_ID, S_TENANT_ID, S_NAME, S_CONTACT, S_PHONE,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sName}, #{sContact}, #{sPhone},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <update id="update" parameterType="com.company.consumables.basedata.supplier.entity.Supplier">
+        UPDATE TAB_SUPPLIER
+        SET S_NAME = #{sName},
+            S_CONTACT = #{sContact},
+            S_PHONE = #{sPhone},
+            DT_UPDATE_TIME = #{dtUpdateTime},
+            S_UPDATE_USER = #{sUpdateUser}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM TAB_SUPPLIER WHERE S_ID = #{sId}
+    </delete>
+
+    <select id="selectById" resultMap="supplierResultMap">
+        SELECT S_ID, S_NAME, S_CONTACT, S_PHONE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_SUPPLIER
+        WHERE S_ID = #{sId}
+    </select>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sName != null and sName != ''">
+                AND S_NAME LIKE CONCAT('%', #{sName}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="supplierResultMap">
+        SELECT S_ID, S_NAME, S_CONTACT, S_PHONE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_SUPPLIER
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_SUPPLIER
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="countPurchaseBySupplierId" resultType="int">
+        SELECT COUNT(*) FROM TAB_PURCHASE WHERE S_SUPPLIER_ID = #{supplierId}
+    </select>
+
+</mapper>

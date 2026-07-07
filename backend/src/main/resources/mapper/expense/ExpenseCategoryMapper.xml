@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.finance.expense.mapper.ExpenseCategoryMapper">
+
+    <resultMap id="categoryResultMap" type="com.company.consumables.finance.expense.entity.ExpenseCategory">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_NAME" property="sName"/>
+        <result column="I_CATEGORY_TYPE" property="iCategoryType"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.finance.expense.entity.ExpenseCategory">
+        INSERT INTO TAB_EXPENSE_CATEGORY
+        (S_ID, S_TENANT_ID, S_NAME, I_CATEGORY_TYPE, DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sName}, #{iCategoryType}, #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <update id="update" parameterType="com.company.consumables.finance.expense.entity.ExpenseCategory">
+        UPDATE TAB_EXPENSE_CATEGORY
+        SET S_NAME = #{sName},
+            I_CATEGORY_TYPE = #{iCategoryType},
+            DT_UPDATE_TIME = #{dtUpdateTime},
+            S_UPDATE_USER = #{sUpdateUser}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM TAB_EXPENSE_CATEGORY WHERE S_ID = #{sId}
+    </delete>
+
+    <select id="selectById" resultMap="categoryResultMap">
+        SELECT S_ID, S_NAME, I_CATEGORY_TYPE, DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_EXPENSE_CATEGORY
+        WHERE S_ID = #{sId}
+    </select>
+
+    <select id="countByNameAndType" resultType="int">
+        SELECT COUNT(*)
+        FROM TAB_EXPENSE_CATEGORY
+        WHERE S_NAME = #{name} AND I_CATEGORY_TYPE = #{type}
+        <if test="excludeId != null and excludeId != ''">
+            AND S_ID != #{excludeId}
+        </if>
+    </select>
+
+    <select id="selectByType" resultMap="categoryResultMap">
+        SELECT S_ID, S_NAME, I_CATEGORY_TYPE, DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_EXPENSE_CATEGORY
+        <where>
+            <if test="type != null">
+                AND I_CATEGORY_TYPE = #{type}
+            </if>
+        </where>
+        ORDER BY DT_CREATE_TIME ASC
+    </select>
+
+</mapper>

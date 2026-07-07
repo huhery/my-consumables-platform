@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.basedata.goods.mapper.GoodsMapper">
+
+    <resultMap id="goodsResultMap" type="com.company.consumables.basedata.goods.entity.Goods">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_CODE" property="sCode"/>
+        <result column="S_NAME" property="sName"/>
+        <result column="S_CATEGORY" property="sCategory"/>
+        <result column="S_SPEC" property="sSpec"/>
+        <result column="S_BASE_UNIT" property="sBaseUnit"/>
+        <result column="I_STATUS" property="iStatus"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.basedata.goods.entity.Goods">
+        INSERT INTO TAB_GOODS
+        (S_ID, S_TENANT_ID, S_CODE, S_NAME, S_CATEGORY, S_SPEC, S_BASE_UNIT, I_STATUS,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sCode}, #{sName}, #{sCategory}, #{sSpec}, #{sBaseUnit}, #{iStatus},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <update id="update" parameterType="com.company.consumables.basedata.goods.entity.Goods">
+        UPDATE TAB_GOODS
+        SET S_CODE = #{sCode},
+            S_NAME = #{sName},
+            S_CATEGORY = #{sCategory},
+            S_SPEC = #{sSpec},
+            S_BASE_UNIT = #{sBaseUnit},
+            I_STATUS = #{iStatus},
+            DT_UPDATE_TIME = #{dtUpdateTime},
+            S_UPDATE_USER = #{sUpdateUser}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM TAB_GOODS WHERE S_ID = #{sId}
+    </delete>
+
+    <select id="selectById" resultMap="goodsResultMap">
+        SELECT S_ID, S_CODE, S_NAME, S_CATEGORY, S_SPEC, S_BASE_UNIT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_GOODS
+        WHERE S_ID = #{sId}
+    </select>
+
+    <select id="countByCode" resultType="int">
+        SELECT COUNT(*)
+        FROM TAB_GOODS
+        WHERE S_CODE = #{sCode}
+        <if test="excludeId != null and excludeId != ''">
+            AND S_ID != #{excludeId}
+        </if>
+    </select>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sCode != null and sCode != ''">
+                AND S_CODE LIKE CONCAT('%', #{sCode}, '%')
+            </if>
+            <if test="sName != null and sName != ''">
+                AND S_NAME LIKE CONCAT('%', #{sName}, '%')
+            </if>
+            <if test="sCategory != null and sCategory != ''">
+                AND S_CATEGORY = #{sCategory}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="goodsResultMap">
+        SELECT S_ID, S_CODE, S_NAME, S_CATEGORY, S_SPEC, S_BASE_UNIT, I_STATUS,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_GOODS
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_GOODS
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="countStockByGoodsId" resultType="int">
+        SELECT COUNT(*) FROM TAB_STOCK WHERE S_GOODS_ID = #{goodsId}
+    </select>
+
+    <select id="countFlowByGoodsId" resultType="int">
+        SELECT COUNT(*) FROM TAB_STOCK_FLOW WHERE S_GOODS_ID = #{goodsId}
+    </select>
+
+</mapper>

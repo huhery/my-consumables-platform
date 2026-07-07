@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.purchase.mapper.PurchaseMapper">
+
+    <resultMap id="purchaseResultMap" type="com.company.consumables.purchase.entity.Purchase">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_PURCHASE_NO" property="sPurchaseNo"/>
+        <result column="S_SUPPLIER_ID" property="sSupplierId"/>
+        <result column="S_WAREHOUSE_ID" property="sWarehouseId"/>
+        <result column="I_TOTAL_AMOUNT" property="iTotalAmount"/>
+        <result column="DT_PURCHASE_TIME" property="dtPurchaseTime"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.purchase.entity.Purchase">
+        INSERT INTO TAB_PURCHASE
+        (S_ID, S_TENANT_ID, S_PURCHASE_NO, S_SUPPLIER_ID, S_WAREHOUSE_ID, I_TOTAL_AMOUNT, DT_PURCHASE_TIME,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sPurchaseNo}, #{sSupplierId}, #{sWarehouseId}, #{iTotalAmount}, #{dtPurchaseTime},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <update id="updateTotalAmount">
+        UPDATE TAB_PURCHASE
+        SET I_TOTAL_AMOUNT = #{totalAmount},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <select id="selectById" resultMap="purchaseResultMap">
+        SELECT S_ID, S_PURCHASE_NO, S_SUPPLIER_ID, S_WAREHOUSE_ID, I_TOTAL_AMOUNT, DT_PURCHASE_TIME,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PURCHASE
+        WHERE S_ID = #{sId}
+    </select>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sSupplierId != null and sSupplierId != ''">
+                AND S_SUPPLIER_ID = #{sSupplierId}
+            </if>
+            <if test="sWarehouseId != null and sWarehouseId != ''">
+                AND S_WAREHOUSE_ID = #{sWarehouseId}
+            </if>
+            <if test="startTime != null">
+                AND DT_PURCHASE_TIME &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND DT_PURCHASE_TIME &lt;= #{endTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="purchaseResultMap">
+        SELECT S_ID, S_PURCHASE_NO, S_SUPPLIER_ID, S_WAREHOUSE_ID, I_TOTAL_AMOUNT, DT_PURCHASE_TIME,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PURCHASE
+        <include refid="pageCondition"/>
+        ORDER BY DT_PURCHASE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_PURCHASE
+        <include refid="pageCondition"/>
+    </select>
+
+</mapper>

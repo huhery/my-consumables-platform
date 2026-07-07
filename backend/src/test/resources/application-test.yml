@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:consumables_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:test-schema.sql
+  # 测试环境不启用 Flyway，改用 schema.sql 初始化
+  flyway:
+    enabled: false
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: false
+    # 多租户隔离：一级缓存作用域设为 STATEMENT，避免跨租户查询命中缓存
+    local-cache-scope: statement
+
+consumables:
+  audit:
+    default-user: test-user
+
+logging:
+  level:
+    com.company.consumables: debug

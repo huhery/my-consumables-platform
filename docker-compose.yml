@@ -1,0 +1,35 @@
+# 超市耗材供应商系统 - 一键部署编排
+# 两个服务：后端、前端(Nginx)
+# 数据库使用服务器上已有的 MySQL（容器，3306 已映射到宿主机），不再由本编排启动 MySQL。
+services:
+  # ============ 后端 ============
+  backend:
+    build:
+      context: ./backend
+    container_name: consumables-backend
+    restart: always
+    # 让容器可通过 host.docker.internal 访问宿主机（即宿主机上映射的 MySQL 3306）
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      # 连接宿主机上已有的 MySQL（其 3306 已映射到宿主机）
+      DB_HOST: ${DB_HOST:-host.docker.internal}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-CONSUMABLES}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-HH123456}
+      TZ: Asia/Shanghai
+    expose:
+      - "8080"
+
+  # ============ 前端（Nginx）============
+  frontend:
+    build:
+      context: ./frontend
+    container_name: consumables-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      # 对外暴露的访问端口，可通过 .env 的 WEB_PORT 修改（默认 8090 避免与已有服务冲突）
+      - "${WEB_PORT:-8090}:80"

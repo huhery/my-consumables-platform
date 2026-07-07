@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.purchase.mapper.PurchaseItemMapper">
+
+    <resultMap id="purchaseItemResultMap" type="com.company.consumables.purchase.entity.PurchaseItem">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_PURCHASE_ID" property="sPurchaseId"/>
+        <result column="S_GOODS_ID" property="sGoodsId"/>
+        <result column="I_QTY_BASE" property="iQtyBase"/>
+        <result column="S_INPUT_UNIT" property="sInputUnit"/>
+        <result column="I_INPUT_QTY" property="iInputQty"/>
+        <result column="I_PRICE" property="iPrice"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.purchase.entity.PurchaseItem">
+        INSERT INTO TAB_PURCHASE_ITEM
+        (S_ID, S_TENANT_ID, S_PURCHASE_ID, S_GOODS_ID, I_QTY_BASE, S_INPUT_UNIT, I_INPUT_QTY, I_PRICE,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sPurchaseId}, #{sGoodsId}, #{iQtyBase}, #{sInputUnit}, #{iInputQty}, #{iPrice},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectByPurchaseId" resultMap="purchaseItemResultMap">
+        SELECT S_ID, S_PURCHASE_ID, S_GOODS_ID, I_QTY_BASE, S_INPUT_UNIT, I_INPUT_QTY, I_PRICE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_PURCHASE_ITEM
+        WHERE S_PURCHASE_ID = #{purchaseId}
+    </select>
+
+</mapper>

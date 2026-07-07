@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.platform.tenant.mapper.TenantMapper">
+
+    <resultMap id="tenantResultMap" type="com.company.consumables.platform.tenant.entity.Tenant">
+        <id column="S_ID" property="sId"/>
+        <result column="S_NAME" property="sName"/>
+        <result column="I_STATUS" property="iStatus"/>
+        <result column="DT_OPEN_TIME" property="dtOpenTime"/>
+        <result column="D_EXPIRE_DATE" property="dExpireDate"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.platform.tenant.entity.Tenant">
+        INSERT INTO TAB_TENANT
+        (S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sName}, #{iStatus}, #{dtOpenTime}, #{dExpireDate},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <select id="selectById" resultMap="tenantResultMap">
+        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_TENANT
+        WHERE S_ID = #{sId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE TAB_TENANT
+        SET I_STATUS = #{status},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <update id="updateExpireDate">
+        UPDATE TAB_TENANT
+        SET D_EXPIRE_DATE = #{expireDate},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sName != null and sName != ''">
+                AND S_NAME LIKE CONCAT('%', #{sName}, '%')
+            </if>
+            <if test="iStatus != null">
+                AND I_STATUS = #{iStatus}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="tenantResultMap">
+        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_TENANT
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_TENANT
+        <include refid="pageCondition"/>
+    </select>
+
+</mapper>

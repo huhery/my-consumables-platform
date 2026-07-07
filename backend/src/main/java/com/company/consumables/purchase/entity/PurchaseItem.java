@@ -1,0 +1,37 @@
+package com.company.consumables.purchase.entity;
+
+import com.company.consumables.common.entity.BaseEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * 类描述: 进货单明细实体，对应表 TAB_PURCHASE_ITEM
+ *
+ * @author honghui
+ * @version 1.0
+ * @date 2026/06/30
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class PurchaseItem extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /** 进货单主表ID */
+    private String sPurchaseId;
+
+    /** 商品ID */
+    private String sGoodsId;
+
+    /** 折算后基本单位数量 */
+    private Integer iQtyBase;
+
+    /** 录入时单位名称 */
+    private String sInputUnit;
+
+    /** 录入时数量 */
+    private Integer iInputQty;
+
+    /** 进价（分，按基本单位计） */
+    private Integer iPrice;
+}

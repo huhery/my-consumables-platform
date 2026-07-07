@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.stock.mapper.StockFlowMapper">
+
+    <resultMap id="stockFlowResultMap" type="com.company.consumables.stock.entity.StockFlow">
+        <id column="S_ID" property="sId"/>
+        <result column="S_TENANT_ID" property="sTenantId"/>
+        <result column="S_GOODS_ID" property="sGoodsId"/>
+        <result column="S_WAREHOUSE_ID" property="sWarehouseId"/>
+        <result column="I_FLOW_TYPE" property="iFlowType"/>
+        <result column="I_CHANGE_QTY" property="iChangeQty"/>
+        <result column="S_SOURCE_NO" property="sSourceNo"/>
+        <result column="S_REMARK" property="sRemark"/>
+        <result column="DT_CREATE_TIME" property="dtCreateTime"/>
+        <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
+        <result column="S_CREATE_USER" property="sCreateUser"/>
+        <result column="S_UPDATE_USER" property="sUpdateUser"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.company.consumables.stock.entity.StockFlow">
+        INSERT INTO TAB_STOCK_FLOW
+        (S_ID, S_TENANT_ID, S_GOODS_ID, S_WAREHOUSE_ID, I_FLOW_TYPE, I_CHANGE_QTY, S_SOURCE_NO, S_REMARK,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sTenantId}, #{sGoodsId}, #{sWarehouseId}, #{iFlowType}, #{iChangeQty}, #{sSourceNo}, #{sRemark},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+    <sql id="pageCondition">
+        <where>
+            <if test="sGoodsId != null and sGoodsId != ''">
+                AND S_GOODS_ID = #{sGoodsId}
+            </if>
+            <if test="sWarehouseId != null and sWarehouseId != ''">
+                AND S_WAREHOUSE_ID = #{sWarehouseId}
+            </if>
+            <if test="iFlowType != null">
+                AND I_FLOW_TYPE = #{iFlowType}
+            </if>
+            <if test="startTime != null">
+                AND DT_CREATE_TIME &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND DT_CREATE_TIME &lt;= #{endTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="stockFlowResultMap">
+        SELECT S_ID, S_GOODS_ID, S_WAREHOUSE_ID, I_FLOW_TYPE, I_CHANGE_QTY, S_SOURCE_NO, S_REMARK,
+               DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
+        FROM TAB_STOCK_FLOW
+        <include refid="pageCondition"/>
+        ORDER BY DT_CREATE_TIME DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*)
+        FROM TAB_STOCK_FLOW
+        <include refid="pageCondition"/>
+    </select>
+
+    <select id="sumChangeQty" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(I_CHANGE_QTY), 0)
+        FROM TAB_STOCK_FLOW
+        WHERE S_GOODS_ID = #{goodsId} AND S_WAREHOUSE_ID = #{warehouseId}
+    </select>
+
+</mapper>

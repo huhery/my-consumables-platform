@@ -64,6 +64,20 @@ public interface TenantMapper {
                          @Param("operator") String operator);
 
     /**
+     * 功能描述: 更新租户 AI 开关
+     *
+     * @param sId       主键
+     * @param aiEnabled AI 开关：0关闭 1开启
+     * @param operator  更新人
+     * @return 影响行数
+     * @author honghui
+     * @date 2026/07/08 10:00
+     */
+    int updateAiEnabled(@Param("sId") String sId,
+                        @Param("aiEnabled") int aiEnabled,
+                        @Param("operator") String operator);
+
+    /**
      * 功能描述: 分页查询租户
      *
      * @param query 查询条件

@@ -34,7 +34,9 @@ const routes = [
       { path: 'fund-flow', component: () => import('@/views/finance/FundFlowView.vue') },
       { path: 'delivery-reminder', component: () => import('@/views/finance/DeliveryReminderView.vue') },
       { path: 'report-fund', component: () => import('@/views/report/FundSummaryView.vue') },
-      { path: 'report-expense', component: () => import('@/views/report/ExpenseSummaryView.vue') }
+      { path: 'report-expense', component: () => import('@/views/report/ExpenseSummaryView.vue') },
+      // AI 智能问数（仅开通 AI 的商家可见入口）
+      { path: 'ai-assistant', component: () => import('@/views/ai/AiAssistantView.vue') }
     ]
   }
 ]

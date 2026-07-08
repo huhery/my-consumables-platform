@@ -37,6 +37,15 @@ consumables:
   # 第一期免登录，审计字段默认操作人
   audit:
     default-user: admin
+  # AI 智能问数配置
+  ai:
+    enabled: ${AI_ENABLED:false}        # 平台 AI 总开关
+    log-enabled: ${AI_LOG_ENABLED:false} # 是否记录问答日志
+    llm:
+      base-url: ${AI_LLM_BASE_URL:}      # OpenAI 兼容地址，如 https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: ${AI_LLM_API_KEY:}        # 密钥，环境变量注入，禁止硬编码
+      model: ${AI_LLM_MODEL:qwen-plus}   # 模型名
+      timeout-millis: ${AI_LLM_TIMEOUT:15000}
 
 logging:
   level:

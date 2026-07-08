@@ -31,4 +31,7 @@ public class TenantOpenVo implements Serializable {
 
     /** 有效期（年），默认 1 年 */
     private Integer expireYears;
+
+    /** 是否开通 AI 智能问数（默认 false） */
+    private Boolean aiEnabled;
 }

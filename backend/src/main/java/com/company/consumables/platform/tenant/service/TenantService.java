@@ -53,6 +53,26 @@ public interface TenantService {
     void renew(String tenantId, int years);
 
     /**
+     * 功能描述: 设置商家 AI 开关（开通/关闭智能问数）
+     *
+     * @param tenantId 租户ID
+     * @param enabled  是否开通
+     * @author honghui
+     * @date 2026/07/08 10:10
+     */
+    void setAiEnabled(String tenantId, boolean enabled);
+
+    /**
+     * 功能描述: 判断商家是否已开通 AI
+     *
+     * @param tenantId 租户ID
+     * @return true 已开通
+     * @author honghui
+     * @date 2026/07/08 10:10
+     */
+    boolean isAiEnabled(String tenantId);
+
+    /**
      * 功能描述: 分页查询商家
      *
      * @param query 查询条件

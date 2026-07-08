@@ -59,6 +59,8 @@ public class TenantServiceImpl implements TenantService {
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.add(java.util.Calendar.YEAR, years);
         tenant.setDExpireDate(cal.getTime());
+        // AI 开关：默认关闭，开通时可选开启
+        tenant.setIAiEnabled(Boolean.TRUE.equals(vo.getAiEnabled()) ? 1 : 0);
         tenantMapper.insert(tenant);
 
         // 建初始商家管理员账号
@@ -141,6 +143,34 @@ public class TenantServiceImpl implements TenantService {
         }
         cal.add(java.util.Calendar.YEAR, years);
         tenantMapper.updateExpireDate(tenantId, cal.getTime(), currentOperator());
+    }
+
+    /**
+     * 功能描述: 设置商家 AI 开关
+     *
+     * @param tenantId 租户ID
+     * @param enabled  是否开通
+     * @author honghui
+     * @date 2026/07/08 10:12
+     */
+    @Override
+    public void setAiEnabled(String tenantId, boolean enabled) {
+        checkExist(tenantId);
+        tenantMapper.updateAiEnabled(tenantId, enabled ? 1 : 0, currentOperator());
+    }
+
+    /**
+     * 功能描述: 判断商家是否已开通 AI
+     *
+     * @param tenantId 租户ID
+     * @return true 已开通
+     * @author honghui
+     * @date 2026/07/08 10:12
+     */
+    @Override
+    public boolean isAiEnabled(String tenantId) {
+        Tenant tenant = tenantMapper.selectById(tenantId);
+        return tenant != null && tenant.getIAiEnabled() != null && tenant.getIAiEnabled() == 1;
     }
 
     @Override

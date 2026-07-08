@@ -187,8 +187,9 @@ my-consumables-platform/
 | TAB_PAYABLE | 财务 | 应付账款 | ✅ |
 | TAB_FUND_FLOW | 财务 | 资金流水（收款/付款/费用/收入统一台账） | ✅ |
 | TAB_EXPENSE_CATEGORY | 财务 | 费用/收入分类 | ✅ |
-| TAB_TENANT | 平台 | 租户（商家，含到期日期） | ❌平台表 |
+| TAB_TENANT | 平台 | 租户（商家，含到期日期、AI开关 I_AI_ENABLED） | ❌平台表 |
 | TAB_ACCOUNT | 平台 | 账号（一租户N账号+角色） | ❌平台表 |
+| TAB_AI_CHAT_LOG | AI | AI 问答日志（可选记录） | ✅ |
 
 **唯一性约束**（均为租户内唯一，组合唯一索引 `S_TENANT_ID + 字段`）：
 - 商品编码、库存地点编码、进货单号、销售单号
@@ -199,6 +200,7 @@ my-consumables-platform/
 - `V2__finance_schema.sql`：第二期 4 张财务表 + 销售单加期望送达日期
 - `V3__multitenancy_schema.sql`：租户/账号表 + 15 张业务表加租户字段 + 唯一性改造
 - `V4__tenant_expire.sql`：租户表增加到期日期字段 D_EXPIRE_DATE
+- `V5__ai_assistant.sql`：租户表增加 AI 开关 I_AI_ENABLED + 创建 AI 问答日志表 TAB_AI_CHAT_LOG
 
 ---
 
@@ -218,6 +220,7 @@ my-consumables-platform/
 10. **Jackson 按字段名直接序列化**：全局配置 `JacksonConfig`（FIELD 可见性，关闭 GETTER 推断），避免 Lombok getter 命名（如 `getSName`→Jackson 误推为 `SName`）与属性推断不兼容。所有实体/VO 的 JSON key 与 Java 字段名一致。
 11. **租户拦截器带主表别名**：追加 `WHERE 主表别名.S_TENANT_ID = ?`，避免 JOIN 场景列名歧义。
 12. **商家有效期管理**：`TAB_TENANT.D_EXPIRE_DATE` 到期日期字段；开通商家时设有效期（默认 1 年）；登录校验到期（过期拒登提示续费）；平台管理员可续期。
+13. **AI 智能问数（只读、不碰 SQL）**：商家用自然语言查经营数据。大模型只做"意图识别 + 参数抽取"，输出被约束为"选一个预设意图 + 填参数"的 JSON；取数走既有 Service（自动经租户隔离拦截器），**绝不把模型输出当 SQL 执行**。意图用 Spring `List<IntentHandler>` 注入实现"注册即生效"；大模型全配置化（OpenAI 兼容协议，换厂商零改代码）；AI 开关按商家控制（`I_AI_ENABLED`）作为增值点；映射不到即拒答、大模型不可用即降级，绝不影响系统其他功能。
 
 ### 系统不变量（测试守护）
 
@@ -232,10 +235,11 @@ my-consumables-platform/
 
 ### 测试现状
 
-后端共 **30 个测试全部通过**：
+后端共 **44 个测试全部通过**：
 - 第一期：商品(8) + 库存(5) + 进货(1) + 出货(5)
 - 第二期：财务(5)
 - 第三期：租户隔离(2) + 认证与租户管理(4)
+- 第七期 AI：意图路由(3) + 编排服务(5) + 大模型客户端(3) + AI开关与隔离(3)
 
 测试用 H2 内存库（`test-schema.sql`），`@ActiveProfiles("test")`。既有测试通过 `@BeforeEach` 设置默认租户上下文适配隔离。
 
@@ -257,7 +261,7 @@ my-consumables-platform/
 >
 > 超级管理员登录后进入"商家管理"界面，可管理所有商家，看不到业务数据（不归属任何租户）。
 
-- 商家开通（建租户 + 初始商家账号 + 有效期）、启用/停用、续期、商家分页查询
+- 商家开通（建租户 + 初始商家账号 + 有效期 + AI 开关）、启用/停用、续期、AI 开关、商家分页查询
 
 ### 基础数据（商家）
 - 商品档案 CRUD + 编码唯一 + 使用中禁改基本单位/禁删
@@ -283,6 +287,11 @@ my-consumables-platform/
 - 送货提醒（待发货批发单，按期望送达排序）
 - 经营报表：资金汇总、费用分类汇总
 
+### AI 智能问数（商家，需平台开通 AI）
+- 自然语言问数：销售额、客户欠款排行、供应商应付、库存概览、收支概览、待送货提醒
+- 大模型只识别意图不碰 SQL；取数复用既有 Service 自动隔离；映射不到拒答、失败降级
+- 前端"智能问数"入口仅对已开通 AI 的商家显示
+
 ### 认证（全局）
 - 登录（JWT）、退出、登录态守卫、按角色分流界面
 
@@ -291,7 +300,8 @@ my-consumables-platform/
 ## 8. API 清单（统一前缀 /api，统一返回 RestApiResultVo）
 
 **认证**：`POST /auth/login`、`POST /auth/logout`
-**平台管理**（仅平台管理员）：`POST /platform/tenant`、`GET /platform/tenant/page`、`POST /platform/tenant/{id}/enable|disable`、`POST /platform/tenant/{id}/renew?years=N`（续期）
+**平台管理**（仅平台管理员）：`POST /platform/tenant`、`GET /platform/tenant/page`、`POST /platform/tenant/{id}/enable|disable`、`POST /platform/tenant/{id}/renew?years=N`（续期）、`POST /platform/tenant/{id}/ai?enabled=true|false`（AI 开关）
+**AI 智能问数**（商家，需开通 AI）：`POST /ai/ask`（自然语言问数）、`GET /ai/status`（是否开通）
 **商品**：`POST|PUT|DELETE /goods`、`GET /goods/page`、`GET|POST /goods/{id}/units`、`DELETE /goods/units/{unitId}`
 **库存地点/客户/供应商**：`/warehouse`、`/customer`、`/supplier` 各 CRUD + `/page`
 **库存**：`GET /stock/page`、`GET /stock/flow/page`、`POST /stock/adjust`
@@ -375,6 +385,13 @@ DB_PASSWORD / DB_NAME / WEB_PORT(默认8090)
 consumables.jwt.secret            JWT密钥（改强密钥）
 consumables.jwt.expire-millis     令牌有效期（默认7天）
 consumables.platform-admin.password  平台管理员初始密码（改掉 admin123）
+
+# AI 智能问数（可选，环境变量注入；不配置则 AI 走降级不影响其他功能）
+AI_ENABLED           平台 AI 总开关（默认 false）
+AI_LLM_BASE_URL      OpenAI 兼容地址（如通义 https://dashscope.aliyuncs.com/compatible-mode/v1）
+AI_LLM_API_KEY       大模型密钥（禁止硬编码）
+AI_LLM_MODEL         模型名（默认 qwen-plus）
+AI_LOG_ENABLED       是否记录问答日志（默认 false）
 ```
 
 ### 环境要求
@@ -458,7 +475,7 @@ npm run build             # 生产构建
 详见 **第 14 节 后续路线图**（第四期退货、第五期多员工账号+权限、第六期移动端及更远期规划）。
 
 ### 待验证事项
-- 本地已通过编译 + 30 个测试；**真机端到端联调**（登录→开通商家→隔离验证）请按 `VERIFY.md` 执行
+- 本地已通过编译 + 44 个测试；**真机端到端联调**（登录→开通商家→隔离验证→AI 问数）请按 `VERIFY.md` 执行
 - 生产上线前务必修改：`jwt.secret`、平台管理员密码、`DB_PASSWORD`
 
 ---

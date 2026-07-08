@@ -30,4 +30,7 @@ public class Tenant extends BaseEntity {
 
     /** 到期日期（按年收费管理，到期后登录被拒） */
     private Date dExpireDate;
+
+    /** AI 开关：0关闭 1开启（平台管理员控制，作为增值服务） */
+    private Integer iAiEnabled;
 }

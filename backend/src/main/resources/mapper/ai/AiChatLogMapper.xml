@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.ai.mapper.AiChatLogMapper">
+
+    <insert id="insert" parameterType="com.company.consumables.ai.entity.AiChatLog">
+        INSERT INTO TAB_AI_CHAT_LOG
+        (S_ID, S_QUESTION, S_INTENT, I_SUCCESS, I_DEGRADED, S_TENANT_ID,
+         DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
+        VALUES
+        (#{sId}, #{sQuestion}, #{sIntent}, #{iSuccess}, #{iDegraded}, #{sTenantId},
+         #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
+    </insert>
+
+</mapper>

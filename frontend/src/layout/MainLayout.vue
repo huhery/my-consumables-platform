@@ -48,6 +48,9 @@
         <el-menu-item index="/delivery-reminder">
           <el-icon><Van/></el-icon><span>送货提醒</span>
         </el-menu-item>
+        <el-menu-item v-if="aiEnabled" index="/ai-assistant">
+          <el-icon><ChatDotRound/></el-icon><span>智能问数</span>
+        </el-menu-item>
         <el-sub-menu index="report">
           <template #title><el-icon><DataAnalysis/></el-icon><span>数据报表</span></template>
           <el-menu-item index="/report-fund">资金汇总</el-menu-item>
@@ -72,11 +75,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/store/auth'
 import { authApi } from '@/api/auth'
+import { aiApi } from '@/api/ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -88,6 +92,21 @@ const activeMenu = computed(() => route.path)
 const isPlatformAdmin = computed(() => authStore.isPlatformAdmin)
 // 当前登录名
 const loginName = computed(() => authStore.loginName)
+
+// 当前商家是否开通 AI（控制智能问数入口显隐）
+const aiEnabled = ref(false)
+
+// 商家登录后查询 AI 开通状态
+onMounted(async () => {
+  if (!authStore.isPlatformAdmin) {
+    try {
+      const res = await aiApi.status()
+      aiEnabled.value = !!(res && res.enabled)
+    } catch (e) {
+      aiEnabled.value = false
+    }
+  }
+})
 
 // 退出登录
 async function handleLogout() {

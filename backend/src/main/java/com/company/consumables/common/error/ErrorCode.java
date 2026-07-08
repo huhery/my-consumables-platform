@@ -107,4 +107,12 @@ public final class ErrorCode {
     public static final String LOGIN_NAME_DUPLICATE = "LOGIN_NAME_DUPLICATE";
     /** 商家不存在 */
     public static final String TENANT_NOT_FOUND = "TENANT_NOT_FOUND";
+
+    // ===== AI 智能问数（第七期）=====
+    /** 当前商家未开通智能助手 */
+    public static final String AI_NOT_ENABLED = "AI_NOT_ENABLED";
+    /** 智能助手暂时不可用 */
+    public static final String AI_UNAVAILABLE = "AI_UNAVAILABLE";
+    /** 请输入要查询的问题 */
+    public static final String AI_QUESTION_EMPTY = "AI_QUESTION_EMPTY";
 }

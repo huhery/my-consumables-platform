@@ -100,4 +100,20 @@ public class TenantController {
         tenantService.disable(id);
         return RestApiResultVo.ok();
     }
+
+    /**
+     * 功能描述: 开启/关闭某商家 AI 智能问数（仅平台管理员）
+     *
+     * @param id      租户ID
+     * @param enabled 是否开通（query param）
+     * @return 空结果
+     * @author honghui
+     * @date 2026/07/08 10:15
+     */
+    @PostMapping("/{id}/ai")
+    public RestApiResultVo<Void> setAi(@PathVariable("id") String id,
+                                       @RequestParam(value = "enabled", defaultValue = "false") boolean enabled) {
+        tenantService.setAiEnabled(id, enabled);
+        return RestApiResultVo.ok();
+    }
 }

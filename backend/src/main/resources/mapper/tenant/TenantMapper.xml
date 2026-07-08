@@ -9,6 +9,7 @@
         <result column="I_STATUS" property="iStatus"/>
         <result column="DT_OPEN_TIME" property="dtOpenTime"/>
         <result column="D_EXPIRE_DATE" property="dExpireDate"/>
+        <result column="I_AI_ENABLED" property="iAiEnabled"/>
         <result column="DT_CREATE_TIME" property="dtCreateTime"/>
         <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
         <result column="S_CREATE_USER" property="sCreateUser"/>
@@ -17,15 +18,15 @@
 
     <insert id="insert" parameterType="com.company.consumables.platform.tenant.entity.Tenant">
         INSERT INTO TAB_TENANT
-        (S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+        (S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE, I_AI_ENABLED,
          DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
         VALUES
-        (#{sId}, #{sName}, #{iStatus}, #{dtOpenTime}, #{dExpireDate},
+        (#{sId}, #{sName}, #{iStatus}, #{dtOpenTime}, #{dExpireDate}, #{iAiEnabled},
          #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
     </insert>
 
     <select id="selectById" resultMap="tenantResultMap">
-        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE, I_AI_ENABLED,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_TENANT
         WHERE S_ID = #{sId}
@@ -47,6 +48,14 @@
         WHERE S_ID = #{sId}
     </update>
 
+    <update id="updateAiEnabled">
+        UPDATE TAB_TENANT
+        SET I_AI_ENABLED = #{aiEnabled},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
+
     <sql id="pageCondition">
         <where>
             <if test="sName != null and sName != ''">
@@ -59,7 +68,7 @@
     </sql>
 
     <select id="selectPage" resultMap="tenantResultMap">
-        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE,
+        SELECT S_ID, S_NAME, I_STATUS, DT_OPEN_TIME, D_EXPIRE_DATE, I_AI_ENABLED,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_TENANT
         <include refid="pageCondition"/>

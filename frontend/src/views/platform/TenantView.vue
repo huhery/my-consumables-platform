@@ -31,6 +31,13 @@
           <span :class="isExpired(row) ? 'expired' : ''">{{ formatDate(row.dExpireDate) }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="AI 问数" width="110">
+        <template #default="{ row }">
+          <el-switch
+              :model-value="row.iAiEnabled === 1"
+              @change="(val) => toggleAi(row, val)"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="220">
         <template #default="{ row }">
           <el-button v-if="row.iStatus === 1" size="small" type="warning" @click="toggle(row, false)">停用</el-button>
@@ -58,6 +65,9 @@
         </el-form-item>
         <el-form-item label="有效期（年）">
           <el-input-number v-model="form.expireYears" :min="1" :max="10"/>
+        </el-form-item>
+        <el-form-item label="开通 AI 问数">
+          <el-switch v-model="form.aiEnabled"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -95,10 +105,10 @@ function onPageChange(page) {
 }
 
 const dialogVisible = ref(false)
-const form = reactive({ name: '', loginName: '', password: '', expireYears: 1 })
+const form = reactive({ name: '', loginName: '', password: '', expireYears: 1, aiEnabled: false })
 
 function openDialog() {
-  Object.assign(form, { name: '', loginName: '', password: '', expireYears: 1 })
+  Object.assign(form, { name: '', loginName: '', password: '', expireYears: 1, aiEnabled: false })
   dialogVisible.value = true
 }
 
@@ -123,6 +133,17 @@ async function toggle(row, enable) {
   }
   ElMessage.success(`${action}成功`)
   loadData()
+}
+
+async function toggleAi(row, val) {
+  try {
+    await platformApi.setAi(row.sId, val)
+    row.iAiEnabled = val ? 1 : 0
+    ElMessage.success(val ? '已开通 AI 问数' : '已关闭 AI 问数')
+  } catch (e) {
+    // 失败时刷新以恢复真实状态
+    loadData()
+  }
 }
 
 async function handleRenew(row) {

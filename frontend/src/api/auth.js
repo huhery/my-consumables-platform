@@ -19,5 +19,7 @@ export const platformApi = {
   // 停用商家
   disable: (id) => request.post(`/platform/tenant/${id}/disable`),
   // 续期商家
-  renew: (id, years) => request.post(`/platform/tenant/${id}/renew?years=${years}`)
+  renew: (id, years) => request.post(`/platform/tenant/${id}/renew?years=${years}`),
+  // 开启/关闭商家 AI 智能问数
+  setAi: (id, enabled) => request.post(`/platform/tenant/${id}/ai?enabled=${enabled}`)
 }

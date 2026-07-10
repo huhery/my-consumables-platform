@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card>
-      <template #header>批发出货录单（保存为待发货，发货时扣库存）</template>
+      <template #header>卖给超市</template>
       <el-form :model="form" label-width="90px">
         <el-form-item label="客户" required>
           <el-select v-model="form.sCustomerId" placeholder="请选择" filterable style="width: 260px">
@@ -16,6 +16,10 @@
         <el-form-item label="期望送达日期">
           <el-date-picker v-model="form.dExpectDelivery" type="date" value-format="YYYY-MM-DD"
                           placeholder="可选，用于送货提醒" style="width: 260px"/>
+        </el-form-item>
+        <el-form-item label="货已送出">
+          <el-switch v-model="form.shipped"/>
+          <span class="ship-hint">开着＝开单即发货扣库存；关掉＝先存单，之后再发货</span>
         </el-form-item>
       </el-form>
 
@@ -58,7 +62,9 @@
       <div class="actions">
         <el-button @click="addItem">添加明细</el-button>
         <span class="total">合计：{{ totalYuan }} 元</span>
-        <el-button type="primary" @click="handleSubmit">保存（待发货）</el-button>
+        <el-button type="primary" size="large" @click="handleSubmit">
+          {{ form.shipped ? '开单并发货' : '保存（待发货）' }}
+        </el-button>
       </div>
     </el-card>
   </div>
@@ -77,7 +83,7 @@ const customerOptions = ref([])
 const warehouseOptions = ref([])
 const goodsOptions = ref([])
 
-const form = reactive({ sCustomerId: '', sWarehouseId: '', dExpectDelivery: '', items: [] })
+const form = reactive({ sCustomerId: '', sWarehouseId: '', dExpectDelivery: '', shipped: true, items: [] })
 
 function newItem() {
   return { sGoodsId: '', sInputUnit: '', iInputQty: 1, priceYuan: 0, rate: 1, unitOptions: [] }
@@ -144,11 +150,24 @@ async function handleSubmit() {
       iPrice: yuanToFen(r.priceYuan)
     }))
   }
-  await saleApi.createWholesale(payload)
-  ElMessage.success('批发单已保存，请到销售单列表发货')
+  const saleId = await saleApi.createWholesale(payload)
+  if (form.shipped) {
+    // 一步发货：开单后立即发货扣库存；库存不足时后端拒绝，单据保留为待发货
+    try {
+      await saleApi.ship(saleId)
+      ElMessage.success('已开单并发货')
+    } catch (e) {
+      // ship 失败（如库存不足）由响应拦截器提示；单据已存为待发货，可补货后到卖货记录发货
+      ElMessage.warning('已开单，但发货失败（可能库存不足）。请补货后到「卖货记录」发货')
+      return
+    }
+  } else {
+    ElMessage.success('批发单已保存，请到「卖货记录」发货')
+  }
   form.sCustomerId = ''
   form.sWarehouseId = ''
   form.dExpectDelivery = ''
+  form.shipped = true
   form.items = []
 }
 
@@ -169,5 +188,11 @@ onMounted(async () => {
 .total {
   font-weight: bold;
   color: #f56c6c;
+}
+
+.ship-hint {
+  margin-left: 12px;
+  color: #909399;
+  font-size: 13px;
 }
 </style>

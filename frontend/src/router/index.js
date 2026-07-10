@@ -11,8 +11,10 @@ const routes = [
   {
     path: '/',
     component: MainLayout,
-    redirect: '/stock',
+    redirect: '/dashboard',
     children: [
+      // 工作台首页（商家）
+      { path: 'dashboard', component: () => import('@/views/DashboardView.vue') },
       // 平台管理（平台管理员）
       { path: 'platform/tenant', component: () => import('@/views/platform/TenantView.vue'), meta: { platformOnly: true } },
       // 基础数据
@@ -57,8 +59,13 @@ router.beforeEach((to, from, next) => {
     next('/login')
     return
   }
+  // 平台管理员进入工作台/根路径时，跳转到商家管理
+  if (authStore.isPlatformAdmin && (to.path === '/dashboard' || to.path === '/')) {
+    next('/platform/tenant')
+    return
+  }
   if (to.meta.platformOnly && !authStore.isPlatformAdmin) {
-    next('/stock')
+    next('/dashboard')
     return
   }
   next()

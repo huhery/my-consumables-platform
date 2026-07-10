@@ -1,0 +1,41 @@
+/* 适老化全局样式：面向中老年小微商户，加大字体与按钮、金额配色更醒目 */
+
+/* 基础字号加大，便于看清 */
+html body {
+  font-size: 15px;
+}
+
+/* 表格与表单内文字加大 */
+.el-table {
+  font-size: 15px;
+}
+
+.el-form-item__label {
+  font-size: 15px;
+}
+
+/* 菜单项加大加高，便于点击 */
+.el-menu-item,
+.el-sub-menu__title {
+  font-size: 15px;
+}
+
+/* 主按钮文字稍大 */
+.el-button {
+  font-size: 14px;
+}
+
+.el-button--large {
+  font-size: 16px;
+}
+
+/* 金额配色工具类：收入/正向绿色，支出/欠款/负向红色 */
+.amount-income {
+  color: #67c23a;
+  font-weight: bold;
+}
+
+.amount-expense {
+  color: #f56c6c;
+  font-weight: bold;
+}

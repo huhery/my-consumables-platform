@@ -235,11 +235,12 @@ my-consumables-platform/
 
 ### 测试现状
 
-后端共 **44 个测试全部通过**：
+后端共 **46 个测试全部通过**：
 - 第一期：商品(8) + 库存(5) + 进货(1) + 出货(5)
 - 第二期：财务(5)
 - 第三期：租户隔离(2) + 认证与租户管理(4)
 - 第七期 AI：意图路由(3) + 编排服务(5) + 大模型客户端(3) + AI开关与隔离(3)
+- 易用性优化：工作台聚合(2)
 
 测试用 H2 内存库（`test-schema.sql`），`@ActiveProfiles("test")`。既有测试通过 `@BeforeEach` 设置默认租户上下文适配隔离。
 
@@ -292,6 +293,12 @@ my-consumables-platform/
 - 大模型只识别意图不碰 SQL；取数复用既有 Service 自动隔离；映射不到拒答、失败降级
 - 前端"智能问数"入口仅对已开通 AI 的商家显示
 
+### 易用性优化（面向小微商户，电脑端）
+- **工作台首页**：登录即见今日收支、别人欠我的钱（+最多客户）、我欠供应商的钱（+最多供应商）、要补货商品、近几天要送的货、本月销售额；由 `GET /api/dashboard/summary` 一次聚合返回（只读、复用既有 Service 自动隔离）
+- **任务导向导航 + 大白话话术**：菜单按动作重组（工作台/卖货/进货/收钱付钱/货/送货提醒/看账本/基础资料），术语口语化（应收→别人欠我的钱、资金流水→收支明细等）
+- **批发一步发货**：卖给超市开单默认"货已送出"，开单即发货；取消勾选则存待发货
+- **适老化**：大字体、大按钮、金额配色（收入绿/支出欠款红）
+
 ### 认证（全局）
 - 登录（JWT）、退出、登录态守卫、按角色分流界面
 
@@ -302,6 +309,7 @@ my-consumables-platform/
 **认证**：`POST /auth/login`、`POST /auth/logout`
 **平台管理**（仅平台管理员）：`POST /platform/tenant`、`GET /platform/tenant/page`、`POST /platform/tenant/{id}/enable|disable`、`POST /platform/tenant/{id}/renew?years=N`（续期）、`POST /platform/tenant/{id}/ai?enabled=true|false`（AI 开关）
 **AI 智能问数**（商家，需开通 AI）：`POST /ai/ask`（自然语言问数）、`GET /ai/status`（是否开通）
+**工作台**（商家）：`GET /dashboard/summary`（首页聚合数据）
 **商品**：`POST|PUT|DELETE /goods`、`GET /goods/page`、`GET|POST /goods/{id}/units`、`DELETE /goods/units/{unitId}`
 **库存地点/客户/供应商**：`/warehouse`、`/customer`、`/supplier` 各 CRUD + `/page`
 **库存**：`GET /stock/page`、`GET /stock/flow/page`、`POST /stock/adjust`

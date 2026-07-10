@@ -6,6 +6,8 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+// 适老化全局样式（须在 Element Plus 之后引入以覆盖）
+import './styles/senior-friendly.css'
 
 // 创建应用实例并注册全局依赖
 const app = createApp(App)

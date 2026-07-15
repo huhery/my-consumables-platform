@@ -107,11 +107,10 @@ onMounted(async () => {
 
 // 退出登录
 async function handleLogout() {
-  await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
   try {
-    await authApi.logout()
+    await ElMessageBox.confirm('确认退出登录？', '提示', { type: 'warning' })
   } catch (e) {
-    // 忽略退出接口异常，前端照常清理
+    return // 用户点了取消
   }
   authStore.clear()
   router.push('/login')

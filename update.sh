@@ -50,6 +50,8 @@ if [ "$DO_PULL" -eq 1 ] && [ -d .git ]; then
   # 强制丢弃本地改动（服务器是纯部署机，代码以远程为准；解决行尾符假改动每次挡 merge 的问题）
   git fetch origin
   git reset --hard origin/main
+  # 恢复脚本执行权限（Windows 提交的文件可能丢失 x 权限）
+  chmod +x *.sh 2>/dev/null || true
   log "已对齐远程最新代码"
 else
   log "跳过 git pull，使用当前目录代码"

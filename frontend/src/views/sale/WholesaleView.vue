@@ -52,6 +52,19 @@
             <el-input-number v-model="row.priceYuan" :min="0" :precision="2" :step="0.1" style="width: 100%"/>
           </template>
         </el-table-column>
+        <el-table-column label="折扣(%)" width="100">
+          <template #default="{ row }">
+            <el-input-number v-model="row.discount" :min="1" :max="100" style="width: 100%"/>
+          </template>
+        </el-table-column>
+        <el-table-column label="折后价" width="90">
+          <template #default="{ row }">{{ (row.priceYuan * row.discount / 100).toFixed(2) }}</template>
+        </el-table-column>
+        <el-table-column label="备注" width="120">
+          <template #default="{ row }">
+            <el-input v-model="row.remark" placeholder="备注" style="width: 100%"/>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="80">
           <template #default="{ $index }">
             <el-button size="small" type="danger" @click="removeItem($index)">删除</el-button>
@@ -86,7 +99,7 @@ const goodsOptions = ref([])
 const form = reactive({ sCustomerId: '', sWarehouseId: '', dExpectDelivery: '', shipped: true, items: [] })
 
 function newItem() {
-  return { sGoodsId: '', sInputUnit: '', iInputQty: 1, priceYuan: 0, rate: 1, unitOptions: [] }
+  return { sGoodsId: '', sInputUnit: '', iInputQty: 1, priceYuan: 0, discount: 100, remark: '', rate: 1, unitOptions: [] }
 }
 
 function addItem() {
@@ -114,7 +127,7 @@ function onUnitChange(row) {
 
 const totalYuan = computed(() => {
   return form.items
-      .reduce((sum, r) => sum + r.iInputQty * r.rate * r.priceYuan, 0)
+      .reduce((sum, r) => sum + r.iInputQty * r.rate * r.priceYuan * r.discount / 100, 0)
       .toFixed(2)
 })
 
@@ -147,7 +160,9 @@ async function handleSubmit() {
       sGoodsId: r.sGoodsId,
       sInputUnit: r.sInputUnit,
       iInputQty: r.iInputQty,
-      iPrice: yuanToFen(r.priceYuan)
+      iPrice: yuanToFen(r.priceYuan),
+      iDiscount: r.discount,
+      sRemark: r.remark || ''
     }))
   }
   const saleId = await saleApi.createWholesale(payload)

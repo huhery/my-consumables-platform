@@ -12,6 +12,9 @@
         <result column="S_INPUT_UNIT" property="sInputUnit"/>
         <result column="I_INPUT_QTY" property="iInputQty"/>
         <result column="I_PRICE" property="iPrice"/>
+        <result column="I_DISCOUNT" property="iDiscount"/>
+        <result column="I_DISCOUNT_PRICE" property="iDiscountPrice"/>
+        <result column="S_REMARK" property="sRemark"/>
         <result column="DT_CREATE_TIME" property="dtCreateTime"/>
         <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
         <result column="S_CREATE_USER" property="sCreateUser"/>
@@ -21,14 +24,17 @@
     <insert id="insert" parameterType="com.company.consumables.sale.entity.SaleOrderItem">
         INSERT INTO TAB_SALE_ORDER_ITEM
         (S_ID, S_TENANT_ID, S_SALE_ID, S_GOODS_ID, I_QTY_BASE, S_INPUT_UNIT, I_INPUT_QTY, I_PRICE,
+         I_DISCOUNT, I_DISCOUNT_PRICE, S_REMARK,
          DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
         VALUES
         (#{sId}, #{sTenantId}, #{sSaleId}, #{sGoodsId}, #{iQtyBase}, #{sInputUnit}, #{iInputQty}, #{iPrice},
+         #{iDiscount}, #{iDiscountPrice}, #{sRemark},
          #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
     </insert>
 
     <select id="selectBySaleId" resultMap="saleOrderItemResultMap">
         SELECT S_ID, S_SALE_ID, S_GOODS_ID, I_QTY_BASE, S_INPUT_UNIT, I_INPUT_QTY, I_PRICE,
+               I_DISCOUNT, I_DISCOUNT_PRICE, S_REMARK,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_SALE_ORDER_ITEM
         WHERE S_SALE_ID = #{saleId}

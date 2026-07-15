@@ -251,9 +251,16 @@ public class SaleServiceImpl implements SaleService {
             item.setSInputUnit(itemVo.getSInputUnit());
             item.setIInputQty(itemVo.getIInputQty());
             item.setIPrice(itemVo.getIPrice());
+            // 折扣与折后价：折扣默认100（不打折），折后价=原价×折扣/100
+            int discount = (itemVo.getIDiscount() != null && itemVo.getIDiscount() > 0) ? itemVo.getIDiscount() : 100;
+            int discountPrice = itemVo.getIPrice() * discount / 100;
+            item.setIDiscount(discount);
+            item.setIDiscountPrice(discountPrice);
+            item.setSRemark(itemVo.getSRemark() != null ? itemVo.getSRemark() : "");
             saleOrderItemMapper.insert(item);
 
-            totalAmount += itemVo.getIPrice() * qtyBase;
+            // 按折后价计算行金额
+            totalAmount += discountPrice * qtyBase;
         }
         return totalAmount;
     }

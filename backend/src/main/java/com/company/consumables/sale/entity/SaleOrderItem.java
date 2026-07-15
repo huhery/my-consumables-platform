@@ -34,4 +34,13 @@ public class SaleOrderItem extends BaseEntity {
 
     /** 售价（分，按基本单位计） */
     private Integer iPrice;
+
+    /** 折扣百分比（100=不打折，90=九折） */
+    private Integer iDiscount;
+
+    /** 折后单价（分） */
+    private Integer iDiscountPrice;
+
+    /** 备注 */
+    private String sRemark;
 }

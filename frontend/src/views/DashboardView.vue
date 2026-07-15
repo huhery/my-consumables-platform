@@ -4,7 +4,7 @@
     <el-row :gutter="16">
       <el-col :span="14">
         <el-card class="highlight-card clickable" @click="goto('/receivable')">
-          <div class="card-title">超市还欠我的钱</div>
+          <div class="card-title">应收未收</div>
           <div class="stat-value expense big">¥{{ yuan(data.totalReceivable) }}</div>
           <div class="sub" v-if="data.topDebtor">
             欠最多：{{ data.topDebtor.name }}（¥{{ yuan(data.topDebtor.amount) }}）
@@ -13,7 +13,7 @@
       </el-col>
       <el-col :span="10">
         <el-card class="stat-card clickable" @click="goto('/sale')">
-          <div class="stat-label">本月卖了</div>
+          <div class="stat-label">本月销售额</div>
           <div class="stat-value income big">¥{{ yuan(data.monthSales) }}</div>
         </el-card>
       </el-col>
@@ -23,13 +23,13 @@
     <el-row :gutter="16" class="row-gap">
       <el-col :span="12">
         <el-card class="stat-card clickable" @click="goto('/fund-flow')">
-          <div class="stat-label">今天收了</div>
+          <div class="stat-label">今天收入</div>
           <div class="stat-value income">¥{{ yuan(data.todayIncome) }}</div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card class="stat-card clickable" @click="goto('/fund-flow')">
-          <div class="stat-label">今天花了</div>
+          <div class="stat-label">今天支出</div>
           <div class="stat-value expense">¥{{ yuan(data.todayExpense) }}</div>
         </el-card>
       </el-col>
@@ -39,18 +39,18 @@
     <el-row :gutter="16" class="row-gap">
       <el-col :span="12">
         <el-card class="clickable" @click="goto('/delivery-reminder')">
-          <div class="card-title">要送的货（{{ data.deliveryCount || 0 }} 单）</div>
+          <div class="card-title">待送货（{{ data.deliveryCount || 0 }} 单）</div>
           <ul class="list" v-if="data.deliveryItems && data.deliveryItems.length">
             <li v-for="(it, i) in data.deliveryItems" :key="i">
               {{ it.saleNo }}　{{ it.expectDelivery || '未指定日期' }}
             </li>
           </ul>
-          <div class="empty" v-else>暂无待送货的订单 👍</div>
+          <div class="empty" v-else>暂无待送货订单</div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card class="clickable" @click="goto('/payable')">
-          <div class="card-title">我欠供应商的钱</div>
+          <div class="card-title">应付未付</div>
           <div class="stat-value expense">¥{{ yuan(data.totalPayable) }}</div>
           <div class="sub" v-if="data.topCreditor">
             欠最多：{{ data.topCreditor.name }}（¥{{ yuan(data.topCreditor.amount) }}）
@@ -63,13 +63,13 @@
     <el-row :gutter="16" class="row-gap">
       <el-col :span="24">
         <el-card class="clickable" @click="goto('/stock')">
-          <div class="card-title">要补货的商品（{{ data.lowStockCount || 0 }} 种）</div>
+          <div class="card-title">库存不足（{{ data.lowStockCount || 0 }} 种）</div>
           <ul class="list" v-if="data.lowStockItems && data.lowStockItems.length">
             <li v-for="(it, i) in data.lowStockItems" :key="i">
               {{ it.goodsName }}　<span class="expense">剩 {{ it.qty }}</span>
             </li>
           </ul>
-          <div class="empty" v-else>库存都够 👍</div>
+          <div class="empty" v-else>暂无库存不足商品</div>
         </el-card>
       </el-col>
     </el-row>

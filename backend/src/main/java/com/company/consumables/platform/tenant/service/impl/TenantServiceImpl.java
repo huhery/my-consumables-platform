@@ -13,6 +13,7 @@ import com.company.consumables.platform.tenant.service.TenantService;
 import com.company.consumables.platform.tenant.vo.TenantOpenVo;
 import com.company.consumables.platform.tenant.vo.TenantQueryVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.List;
  * @version 1.0
  * @date 2026/07/12
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TenantServiceImpl implements TenantService {
@@ -74,8 +76,12 @@ public class TenantServiceImpl implements TenantService {
         account.setIStatus(TenantStatus.ENABLED.getCode());
         accountMapper.insert(account);
 
-        // 自动为新商家初始化产品目录（从平台模板复制）
-        copyGoodsTemplate(tenant.getSId());
+        // 自动为新商家初始化产品目录（从平台模板复制，失败不阻塞开通）
+        try {
+            copyGoodsTemplate(tenant.getSId());
+        } catch (Exception e) {
+            log.warn("商家开通-产品模板复制失败（不影响开通）：{}", e.getMessage());
+        }
 
         return tenant.getSId();
     }

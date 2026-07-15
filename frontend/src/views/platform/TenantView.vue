@@ -38,11 +38,12 @@
               @change="(val) => toggleAi(row, val)"/>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="280">
         <template #default="{ row }">
           <el-button v-if="row.iStatus === 1" size="small" type="warning" @click="toggle(row, false)">停用</el-button>
           <el-button v-else size="small" type="success" @click="toggle(row, true)">启用</el-button>
           <el-button size="small" type="primary" @click="handleRenew(row)">续期</el-button>
+          <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -153,6 +154,17 @@ async function handleRenew(row) {
   })
   await platformApi.renew(row.sId, parseInt(value))
   ElMessage.success('续期成功')
+  loadData()
+}
+
+async function handleDelete(row) {
+  await ElMessageBox.confirm(
+    `确认删除商家「${row.sName}」？删除后该商家账号和数据将无法恢复！`,
+    '危险操作',
+    { type: 'error', confirmButtonText: '确认删除', cancelButtonText: '取消' }
+  )
+  await platformApi.deleteTenant(row.sId)
+  ElMessage.success('已删除')
   loadData()
 }
 

@@ -41,4 +41,14 @@ public interface AccountMapper {
      * @date 2026/07/12 11:40
      */
     int countByLoginName(@Param("loginName") String loginName);
+
+    /**
+     * 功能描述: 按租户ID删除全部账号（删除商家时调用）
+     *
+     * @param tenantId 租户ID
+     * @return 影响行数
+     * @author honghui
+     * @date 2026/07/15 20:30
+     */
+    int deleteByTenantId(@Param("tenantId") String tenantId);
 }

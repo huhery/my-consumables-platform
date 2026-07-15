@@ -36,4 +36,8 @@
         SELECT COUNT(*) FROM TAB_ACCOUNT WHERE S_LOGIN_NAME = #{loginName}
     </select>
 
+    <delete id="deleteByTenantId">
+        DELETE FROM TAB_ACCOUNT WHERE S_TENANT_ID = #{tenantId}
+    </delete>
+
 </mapper>

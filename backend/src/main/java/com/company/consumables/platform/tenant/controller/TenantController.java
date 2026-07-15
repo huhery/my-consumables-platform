@@ -116,4 +116,18 @@ public class TenantController {
         tenantService.setAiEnabled(id, enabled);
         return RestApiResultVo.ok();
     }
+
+    /**
+     * 功能描述: 删除商家（同时删除账号，不可恢复）
+     *
+     * @param id 租户ID
+     * @return 空结果
+     * @author honghui
+     * @date 2026/07/15 20:35
+     */
+    @PostMapping("/{id}/delete")
+    public RestApiResultVo<Void> delete(@PathVariable("id") String id) {
+        tenantService.deleteTenant(id);
+        return RestApiResultVo.ok();
+    }
 }

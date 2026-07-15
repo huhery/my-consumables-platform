@@ -78,6 +78,16 @@ public interface TenantMapper {
                         @Param("operator") String operator);
 
     /**
+     * 功能描述: 按主键删除租户
+     *
+     * @param sId 主键
+     * @return 影响行数
+     * @author honghui
+     * @date 2026/07/15 20:30
+     */
+    int deleteById(@Param("sId") String sId);
+
+    /**
      * 功能描述: 分页查询租户
      *
      * @param query 查询条件

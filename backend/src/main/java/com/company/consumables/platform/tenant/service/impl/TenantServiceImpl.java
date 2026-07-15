@@ -229,6 +229,21 @@ public class TenantServiceImpl implements TenantService {
         return tenant != null && tenant.getIAiEnabled() != null && tenant.getIAiEnabled() == 1;
     }
 
+    /**
+     * 功能描述: 删除商家（同时删除其下所有账号，业务数据因租户隔离已不可访问）
+     *
+     * @param tenantId 租户ID
+     * @author honghui
+     * @date 2026/07/15 20:30
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteTenant(String tenantId) {
+        checkExist(tenantId);
+        accountMapper.deleteByTenantId(tenantId);
+        tenantMapper.deleteById(tenantId);
+    }
+
     @Override
     public PageResult<Tenant> pageTenant(TenantQueryVo query) {
         long total = tenantMapper.countPage(query);

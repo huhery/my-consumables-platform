@@ -56,6 +56,10 @@
         WHERE S_ID = #{sId}
     </update>
 
+    <delete id="deleteById">
+        DELETE FROM TAB_TENANT WHERE S_ID = #{sId}
+    </delete>
+
     <sql id="pageCondition">
         <where>
             <if test="sName != null and sName != ''">

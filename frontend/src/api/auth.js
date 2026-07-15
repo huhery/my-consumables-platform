@@ -21,5 +21,7 @@ export const platformApi = {
   // 续期商家
   renew: (id, years) => request.post(`/platform/tenant/${id}/renew?years=${years}`),
   // 开启/关闭商家 AI 智能问数
-  setAi: (id, enabled) => request.post(`/platform/tenant/${id}/ai?enabled=${enabled}`)
+  setAi: (id, enabled) => request.post(`/platform/tenant/${id}/ai?enabled=${enabled}`),
+  // 删除商家
+  deleteTenant: (id) => request.post(`/platform/tenant/${id}/delete`)
 }

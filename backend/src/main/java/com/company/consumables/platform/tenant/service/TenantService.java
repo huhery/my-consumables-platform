@@ -73,6 +73,15 @@ public interface TenantService {
     boolean isAiEnabled(String tenantId);
 
     /**
+     * 功能描述: 删除商家（同时删除该商家下的账号）
+     *
+     * @param tenantId 租户ID
+     * @author honghui
+     * @date 2026/07/15 20:30
+     */
+    void deleteTenant(String tenantId);
+
+    /**
      * 功能描述: 分页查询商家
      *
      * @param query 查询条件

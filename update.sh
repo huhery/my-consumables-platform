@@ -17,6 +17,10 @@ warn() { echo -e "\033[33m[警告]\033[0m $1"; }
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_DIR"
 
+# 防止 CRLF/LF 行尾符差异被标记为本地改动（Windows 提交 → Linux 部署的通病）
+git config core.autocrlf false 2>/dev/null || true
+git config core.fileMode false 2>/dev/null || true
+
 # ---------- 选择编排命令 ----------
 if docker compose version >/dev/null 2>&1; then
   COMPOSE="docker compose"
@@ -43,7 +47,10 @@ SERVICES="${SERVICES:-backend frontend}"
 # ---------- 拉取最新代码 ----------
 if [ "$DO_PULL" -eq 1 ] && [ -d .git ]; then
   log "拉取最新代码..."
-  git pull --ff-only || warn "git pull 未成功，使用当前代码继续"
+  # 强制丢弃本地改动（服务器是纯部署机，代码以远程为准；解决行尾符假改动每次挡 merge 的问题）
+  git fetch origin
+  git reset --hard origin/main
+  log "已对齐远程最新代码"
 else
   log "跳过 git pull，使用当前目录代码"
 fi

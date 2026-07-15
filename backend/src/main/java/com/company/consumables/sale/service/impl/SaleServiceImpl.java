@@ -89,6 +89,10 @@ public class SaleServiceImpl implements SaleService {
         order.setIStatus(SaleStatus.PENDING.getCode());
         order.setITotalAmount(0);
         order.setDtShipTime(new Date());
+        // 物流状态：未发货
+        order.setIDeliverStatus(1);
+        order.setSExpressCompany("");
+        order.setSExpressNo("");
         // 期望送达日期：未填时用默认占位日期，保证非 NULL
         order.setDExpectDelivery(vo.getDExpectDelivery() == null ? UNFILLED_DATE : vo.getDExpectDelivery());
         saleOrderMapper.insert(order);
@@ -169,6 +173,10 @@ public class SaleServiceImpl implements SaleService {
         order.setITotalAmount(0);
         order.setDtShipTime(new Date());
         order.setDExpectDelivery(UNFILLED_DATE);
+        // 散卖即完成，物流状态直接已发货
+        order.setIDeliverStatus(2);
+        order.setSExpressCompany("");
+        order.setSExpressNo("");
         saleOrderMapper.insert(order);
 
         int totalAmount = saveItems(order.getSId(), vo.getItems());
@@ -227,6 +235,28 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public List<SaleOrder> deliveryReminder() {
         return saleOrderMapper.selectDeliveryReminder();
+    }
+
+    /**
+     * 功能描述: 确认发货（填入快递信息，物流状态改为已发货）
+     *
+     * @param saleId         销售单ID
+     * @param expressCompany 快递公司
+     * @param expressNo      快递单号
+     * @author honghui
+     * @date 2026/07/15 23:00
+     */
+    @Override
+    public void confirmDeliver(String saleId, String expressCompany, String expressNo) {
+        SaleOrder order = saleOrderMapper.selectById(saleId);
+        if (order == null) {
+            throw new BusinessException(ErrorCode.SALE_ORDER_NOT_FOUND);
+        }
+        String operator = com.company.consumables.common.context.UserContext.getCurrentUser();
+        saleOrderMapper.updateDeliverInfo(saleId,
+                expressCompany != null ? expressCompany : "",
+                expressNo != null ? expressNo : "",
+                operator != null ? operator : "system");
     }
 
     /**

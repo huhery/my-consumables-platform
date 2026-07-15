@@ -73,4 +73,15 @@ public interface SaleService {
      * @date 2026/07/06 12:15
      */
     java.util.List<com.company.consumables.sale.entity.SaleOrder> deliveryReminder();
+
+    /**
+     * 功能描述: 确认发货（填入快递公司和单号，物流状态改为已发货）
+     *
+     * @param saleId         销售单ID
+     * @param expressCompany 快递公司
+     * @param expressNo      快递单号
+     * @author honghui
+     * @date 2026/07/15 23:00
+     */
+    void confirmDeliver(String saleId, String expressCompany, String expressNo);
 }

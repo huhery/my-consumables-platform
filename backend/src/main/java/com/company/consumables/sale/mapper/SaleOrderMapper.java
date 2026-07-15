@@ -94,4 +94,20 @@ public interface SaleOrderMapper {
      * @date 2026/07/06 12:10
      */
     List<SaleOrder> selectDeliveryReminder();
+
+    /**
+     * 功能描述: 确认发货（填入快递信息，物流状态改为已发货）
+     *
+     * @param sId            销售单主键
+     * @param expressCompany 快递公司
+     * @param expressNo      快递单号
+     * @param operator       操作人
+     * @return 影响行数
+     * @author honghui
+     * @date 2026/07/15 23:00
+     */
+    int updateDeliverInfo(@Param("sId") String sId,
+                          @Param("expressCompany") String expressCompany,
+                          @Param("expressNo") String expressNo,
+                          @Param("operator") String operator);
 }

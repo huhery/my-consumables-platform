@@ -42,4 +42,13 @@ public class SaleOrder extends BaseEntity {
 
     /** 期望送达日期（第二期，1970-01-01 视为未填） */
     private Date dExpectDelivery;
+
+    /** 物流状态：1未发货 2已发货 */
+    private Integer iDeliverStatus;
+
+    /** 快递公司 */
+    private String sExpressCompany;
+
+    /** 快递/物流单号 */
+    private String sExpressNo;
 }

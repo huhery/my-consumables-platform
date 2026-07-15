@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -96,5 +97,23 @@ public class SaleController {
     @GetMapping("/{id}")
     public RestApiResultVo<SaleDetailVo> detail(@PathVariable("id") String id) {
         return RestApiResultVo.ok(saleService.getDetail(id));
+    }
+
+    /**
+     * 功能描述: 确认发货（填入快递公司和单号）
+     *
+     * @param id             销售单ID
+     * @param expressCompany 快递公司
+     * @param expressNo      快递单号
+     * @return 空结果
+     * @author honghui
+     * @date 2026/07/15 23:05
+     */
+    @PostMapping("/{id}/deliver")
+    public RestApiResultVo<Void> confirmDeliver(@PathVariable("id") String id,
+                                                @RequestParam(value = "expressCompany", defaultValue = "") String expressCompany,
+                                                @RequestParam(value = "expressNo", defaultValue = "") String expressNo) {
+        saleService.confirmDeliver(id, expressCompany, expressNo);
+        return RestApiResultVo.ok();
     }
 }

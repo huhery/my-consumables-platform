@@ -14,6 +14,9 @@
         <result column="I_TOTAL_AMOUNT" property="iTotalAmount"/>
         <result column="DT_SHIP_TIME" property="dtShipTime"/>
         <result column="D_EXPECT_DELIVERY" property="dExpectDelivery"/>
+        <result column="I_DELIVER_STATUS" property="iDeliverStatus"/>
+        <result column="S_EXPRESS_COMPANY" property="sExpressCompany"/>
+        <result column="S_EXPRESS_NO" property="sExpressNo"/>
         <result column="DT_CREATE_TIME" property="dtCreateTime"/>
         <result column="DT_UPDATE_TIME" property="dtUpdateTime"/>
         <result column="S_CREATE_USER" property="sCreateUser"/>
@@ -23,14 +26,17 @@
     <insert id="insert" parameterType="com.company.consumables.sale.entity.SaleOrder">
         INSERT INTO TAB_SALE_ORDER
         (S_ID, S_TENANT_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+         I_DELIVER_STATUS, S_EXPRESS_COMPANY, S_EXPRESS_NO,
          DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER)
         VALUES
         (#{sId}, #{sTenantId}, #{sSaleNo}, #{iSaleType}, #{sCustomerId}, #{sWarehouseId}, #{iStatus}, #{iTotalAmount}, #{dtShipTime}, #{dExpectDelivery},
+         #{iDeliverStatus}, #{sExpressCompany}, #{sExpressNo},
          #{dtCreateTime}, #{dtUpdateTime}, #{sCreateUser}, #{sUpdateUser})
     </insert>
 
     <select id="selectById" resultMap="saleOrderResultMap">
         SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               I_DELIVER_STATUS, S_EXPRESS_COMPANY, S_EXPRESS_NO,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_SALE_ORDER
         WHERE S_ID = #{sId}
@@ -78,6 +84,7 @@
 
     <select id="selectPage" resultMap="saleOrderResultMap">
         SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               I_DELIVER_STATUS, S_EXPRESS_COMPANY, S_EXPRESS_NO,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_SALE_ORDER
         <include refid="pageCondition"/>
@@ -93,10 +100,21 @@
 
     <select id="selectDeliveryReminder" resultMap="saleOrderResultMap">
         SELECT S_ID, S_SALE_NO, I_SALE_TYPE, S_CUSTOMER_ID, S_WAREHOUSE_ID, I_STATUS, I_TOTAL_AMOUNT, DT_SHIP_TIME, D_EXPECT_DELIVERY,
+               I_DELIVER_STATUS, S_EXPRESS_COMPANY, S_EXPRESS_NO,
                DT_CREATE_TIME, DT_UPDATE_TIME, S_CREATE_USER, S_UPDATE_USER
         FROM TAB_SALE_ORDER
-        WHERE I_SALE_TYPE = 1 AND I_STATUS = 1
+        WHERE I_SALE_TYPE = 1 AND I_DELIVER_STATUS = 1
         ORDER BY D_EXPECT_DELIVERY ASC
     </select>
+
+    <update id="updateDeliverInfo">
+        UPDATE TAB_SALE_ORDER
+        SET I_DELIVER_STATUS = 2,
+            S_EXPRESS_COMPANY = #{expressCompany},
+            S_EXPRESS_NO = #{expressNo},
+            DT_UPDATE_TIME = NOW(),
+            S_UPDATE_USER = #{operator}
+        WHERE S_ID = #{sId}
+    </update>
 
 </mapper>

@@ -11,5 +11,8 @@ export const saleApi = {
   // 门店散卖（保存即出库）
   createStore: (data) => request.post('/sale/store', data),
   // 销售单详情
-  detail: (id) => request.get(`/sale/${id}`)
+  detail: (id) => request.get(`/sale/${id}`),
+  // 确认发货（填快递信息）
+  confirmDeliver: (id, expressCompany, expressNo) =>
+    request.post(`/sale/${id}/deliver?expressCompany=${encodeURIComponent(expressCompany)}&expressNo=${encodeURIComponent(expressNo)}`)
 }

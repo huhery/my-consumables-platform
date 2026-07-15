@@ -20,8 +20,14 @@
         <el-menu-item index="/sale-wholesale">
           <el-icon><Sell/></el-icon><span>销售单</span>
         </el-menu-item>
+        <el-menu-item index="/sale">
+          <el-icon><List/></el-icon><span>销售记录</span>
+        </el-menu-item>
         <el-menu-item index="/receivable">
           <el-icon><Wallet/></el-icon><span>收款</span>
+        </el-menu-item>
+        <el-menu-item index="/payable">
+          <el-icon><CreditCard/></el-icon><span>付款</span>
         </el-menu-item>
         <el-menu-item index="/customer">
           <el-icon><User/></el-icon><span>客户</span>
@@ -31,6 +37,9 @@
         </el-menu-item>
         <el-menu-item index="/purchase-create">
           <el-icon><ShoppingCart/></el-icon><span>采购单</span>
+        </el-menu-item>
+        <el-menu-item index="/purchase">
+          <el-icon><List/></el-icon><span>采购记录</span>
         </el-menu-item>
         <el-menu-item index="/goods">
           <el-icon><Goods/></el-icon><span>产品</span>

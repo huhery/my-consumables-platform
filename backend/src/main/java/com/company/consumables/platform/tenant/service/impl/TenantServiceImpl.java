@@ -38,6 +38,7 @@ public class TenantServiceImpl implements TenantService {
     private final PasswordEncoder passwordEncoder;
     private final com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper goodsTemplateMapper;
     private final com.company.consumables.basedata.goods.mapper.GoodsMapper goodsMapper;
+    private final com.company.consumables.basedata.warehouse.mapper.WarehouseMapper warehouseMapper;
 
     /**
      * 功能描述: 开通商家。校验登录名全局唯一，建租户并建初始商家管理员账号（密码 BCrypt）
@@ -83,6 +84,13 @@ public class TenantServiceImpl implements TenantService {
             log.warn("商家开通-产品模板复制失败（不影响开通）：{}", e.getMessage(), e);
         }
 
+        // 自动为新商家初始化默认仓库和门店
+        try {
+            initDefaultWarehouses(tenant.getSId());
+        } catch (Exception e) {
+            log.warn("商家开通-默认仓库初始化失败（不影响开通）：{}", e.getMessage(), e);
+        }
+
         return tenant.getSId();
     }
 
@@ -123,6 +131,33 @@ public class TenantServiceImpl implements TenantService {
                 com.company.consumables.common.tenant.TenantContext.clear();
             }
         }
+    }
+
+    /**
+     * 功能描述: 为新商家初始化默认仓库（主仓库）和门店，让新商家开通即可用
+     *
+     * @param tenantId 新商家租户ID
+     * @author honghui
+     * @date 2026/07/15 21:30
+     */
+    private void initDefaultWarehouses(String tenantId) {
+        // 主仓库
+        com.company.consumables.basedata.warehouse.entity.Warehouse wh = new com.company.consumables.basedata.warehouse.entity.Warehouse();
+        wh.setSCode("CK01");
+        wh.setSName("主仓库");
+        wh.setILocationType(1); // 1=仓库
+        wh.setIStatus(1);
+        wh.setSTenantId(tenantId);
+        warehouseMapper.insert(wh);
+
+        // 默认门店
+        com.company.consumables.basedata.warehouse.entity.Warehouse store = new com.company.consumables.basedata.warehouse.entity.Warehouse();
+        store.setSCode("MD01");
+        store.setSName("门店");
+        store.setILocationType(2); // 2=门店
+        store.setIStatus(1);
+        store.setSTenantId(tenantId);
+        warehouseMapper.insert(store);
     }
 
     /**

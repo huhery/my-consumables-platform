@@ -35,6 +35,9 @@
         <el-menu-item index="/goods">
           <el-icon><Goods/></el-icon><span>产品</span>
         </el-menu-item>
+        <el-menu-item index="/warehouse">
+          <el-icon><OfficeBuilding/></el-icon><span>仓库</span>
+        </el-menu-item>
         <el-menu-item index="/stock">
           <el-icon><Box/></el-icon><span>库存</span>
         </el-menu-item>

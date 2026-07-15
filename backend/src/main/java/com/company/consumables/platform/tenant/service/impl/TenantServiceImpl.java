@@ -80,7 +80,7 @@ public class TenantServiceImpl implements TenantService {
         try {
             copyGoodsTemplate(tenant.getSId());
         } catch (Exception e) {
-            log.warn("商家开通-产品模板复制失败（不影响开通）：{}", e.getMessage());
+            log.warn("商家开通-产品模板复制失败（不影响开通）：{}", e.getMessage(), e);
         }
 
         return tenant.getSId();
@@ -111,6 +111,8 @@ public class TenantServiceImpl implements TenantService {
                 goods.setSSpec(t.getSSpec());
                 goods.setSBaseUnit(t.getSBaseUnit());
                 goods.setIStatus(1);
+                // 显式设置租户ID（不完全依赖审计拦截器，确保正确归属）
+                goods.setSTenantId(tenantId);
                 goodsMapper.insert(goods);
             }
         } finally {

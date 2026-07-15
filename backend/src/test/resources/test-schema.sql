@@ -320,3 +320,9 @@ CREATE TABLE TAB_GOODS_TEMPLATE (
     S_BASE_UNIT  VARCHAR(50)   NOT NULL DEFAULT '',
     PRIMARY KEY (S_ID)
 );
+
+-- 插入几条模板用于测试产品初始化
+INSERT INTO TAB_GOODS_TEMPLATE (S_ID, S_CODE, S_CATEGORY, S_NAME, S_SPEC, S_BASE_UNIT) VALUES
+('T001', '010101', '连卷袋', '连卷袋', '25*35', '公斤'),
+('T002', '010102', '连卷袋', '连卷袋', '30*40', '公斤'),
+('T003', '020101', '保鲜膜与胶带', '保鲜膜 大卷', '45cm*400m', '卷');

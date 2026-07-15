@@ -3,7 +3,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper">
 
-    <select id="selectAll" resultType="com.company.consumables.basedata.goods.entity.GoodsTemplate">
+    <resultMap id="templateResultMap" type="com.company.consumables.basedata.goods.entity.GoodsTemplate">
+        <id column="S_ID" property="sId"/>
+        <result column="S_CODE" property="sCode"/>
+        <result column="S_CATEGORY" property="sCategory"/>
+        <result column="S_NAME" property="sName"/>
+        <result column="S_SPEC" property="sSpec"/>
+        <result column="S_BASE_UNIT" property="sBaseUnit"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="templateResultMap">
         SELECT S_ID, S_CODE, S_CATEGORY, S_NAME, S_SPEC, S_BASE_UNIT
         FROM TAB_GOODS_TEMPLATE
         ORDER BY S_CODE

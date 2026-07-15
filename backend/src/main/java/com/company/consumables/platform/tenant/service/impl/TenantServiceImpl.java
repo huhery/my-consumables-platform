@@ -36,8 +36,12 @@ public class TenantServiceImpl implements TenantService {
     private final TenantMapper tenantMapper;
     private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
-    private final com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper goodsTemplateMapper;
-    private final com.company.consumables.basedata.goods.mapper.GoodsMapper goodsMapper;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper goodsTemplateMapper;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.company.consumables.basedata.goods.mapper.GoodsMapper goodsMapper;
 
     /**
      * 功能描述: 开通商家。校验登录名全局唯一，建租户并建初始商家管理员账号（密码 BCrypt）
@@ -94,6 +98,10 @@ public class TenantServiceImpl implements TenantService {
      * @date 2026/07/15 10:10
      */
     private void copyGoodsTemplate(String tenantId) {
+        if (goodsTemplateMapper == null || goodsMapper == null) {
+            log.warn("商家开通-产品模板 Mapper 未注入，跳过初始化");
+            return;
+        }
         java.util.List<com.company.consumables.basedata.goods.entity.GoodsTemplate> templates =
                 goodsTemplateMapper.selectAll();
         if (templates == null || templates.isEmpty()) {

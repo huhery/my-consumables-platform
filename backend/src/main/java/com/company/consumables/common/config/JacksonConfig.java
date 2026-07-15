@@ -3,10 +3,14 @@ package com.company.consumables.common.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * 类描述: Jackson 全局配置。按字段名原样输出 JSON key，不依赖 getter 推断属性名。
@@ -36,6 +40,11 @@ public class JacksonConfig {
             objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
             // 保留 setter 用于反序列化（@RequestBody 需要）
             objectMapper.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
+            // 全局日期格式：yyyy-MM-dd HH:mm:ss，时区 Asia/Shanghai
+            objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+            objectMapper.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+            // 禁止把日期序列化为时间戳
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         });
     }
 }

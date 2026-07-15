@@ -17,45 +17,36 @@
         <el-menu-item index="/dashboard">
           <el-icon><HomeFilled/></el-icon><span>工作台</span>
         </el-menu-item>
-        <el-sub-menu index="sale">
-          <template #title><el-icon><Sell/></el-icon><span>卖货</span></template>
-          <el-menu-item index="/sale-wholesale">卖给超市</el-menu-item>
-          <el-menu-item index="/sale-store">店里零卖</el-menu-item>
-          <el-menu-item index="/sale">卖货记录</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="finance">
-          <template #title><el-icon><Wallet/></el-icon><span>收钱付钱</span></template>
-          <el-menu-item index="/receivable">超市欠我的钱</el-menu-item>
-          <el-menu-item index="/payable">我欠供应商的钱</el-menu-item>
-          <el-menu-item index="/expense">记一笔支出/收入</el-menu-item>
-          <el-menu-item index="/fund-flow">收支明细</el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="/sale-wholesale">
+          <el-icon><Sell/></el-icon><span>销售单</span>
+        </el-menu-item>
+        <el-menu-item index="/receivable">
+          <el-icon><Wallet/></el-icon><span>收款</span>
+        </el-menu-item>
+        <el-menu-item index="/customer">
+          <el-icon><User/></el-icon><span>客户</span>
+        </el-menu-item>
+        <el-menu-item index="/supplier">
+          <el-icon><Suitcase/></el-icon><span>供应商</span>
+        </el-menu-item>
+        <el-menu-item index="/purchase-create">
+          <el-icon><ShoppingCart/></el-icon><span>采购单</span>
+        </el-menu-item>
+        <el-menu-item index="/goods">
+          <el-icon><Goods/></el-icon><span>产品</span>
+        </el-menu-item>
+        <el-menu-item index="/stock">
+          <el-icon><Box/></el-icon><span>库存</span>
+        </el-menu-item>
+        <el-menu-item index="/expense">
+          <el-icon><Money/></el-icon><span>费用收入</span>
+        </el-menu-item>
+        <el-menu-item index="/fund-flow">
+          <el-icon><DataAnalysis/></el-icon><span>账本</span>
+        </el-menu-item>
         <el-menu-item index="/delivery-reminder">
           <el-icon><Van/></el-icon><span>送货提醒</span>
         </el-menu-item>
-        <el-sub-menu index="purchase">
-          <template #title><el-icon><ShoppingCart/></el-icon><span>进货</span></template>
-          <el-menu-item index="/purchase-create">记一笔进货</el-menu-item>
-          <el-menu-item index="/purchase">进货记录</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="stock">
-          <template #title><el-icon><Box/></el-icon><span>货</span></template>
-          <el-menu-item index="/stock">看库存</el-menu-item>
-          <el-menu-item index="/stock-flow">出入库记录</el-menu-item>
-          <el-menu-item index="/stock-adjust">盘点调整</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="report">
-          <template #title><el-icon><DataAnalysis/></el-icon><span>看账本</span></template>
-          <el-menu-item index="/report-fund">赚了多少</el-menu-item>
-          <el-menu-item index="/report-expense">花在哪了</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="basedata">
-          <template #title><el-icon><Files/></el-icon><span>基础资料</span></template>
-          <el-menu-item index="/goods">商品</el-menu-item>
-          <el-menu-item index="/customer">客户</el-menu-item>
-          <el-menu-item index="/supplier">供应商</el-menu-item>
-          <el-menu-item index="/warehouse">仓库门店</el-menu-item>
-        </el-sub-menu>
         <el-menu-item v-if="aiEnabled" index="/ai-assistant">
           <el-icon><ChatDotRound/></el-icon><span>智能问数</span>
         </el-menu-item>

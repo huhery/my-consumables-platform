@@ -10,7 +10,7 @@
         </el-form-item>
         <el-form-item label="商品" required>
           <el-select v-model="form.sGoodsId" placeholder="请选择" filterable style="width: 100%">
-            <el-option v-for="g in goodsOptions" :key="g.sId" :label="g.sName" :value="g.sId"/>
+            <el-option v-for="g in goodsOptions" :key="g.sId" :label="`[${g.sCategory || ''}] ${g.sName} ${g.sSpec || ''}`" :value="g.sId"/>
           </el-select>
         </el-form-item>
         <el-form-item label="调整数量" required>

@@ -15,7 +15,7 @@
           <template #default="{ row }">
             <el-select v-model="row.sGoodsId" placeholder="选择商品" filterable
                        @change="onGoodsChange(row)" style="width: 100%">
-              <el-option v-for="g in goodsOptions" :key="g.sId" :label="g.sName" :value="g.sId"/>
+              <el-option v-for="g in goodsOptions" :key="g.sId" :label="`[${g.sCategory || ''}] ${g.sName} ${g.sSpec || ''}`" :value="g.sId"/>
             </el-select>
           </template>
         </el-table-column>

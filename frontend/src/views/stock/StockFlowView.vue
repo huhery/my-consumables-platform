@@ -3,7 +3,7 @@
     <el-form :inline="true" :model="query">
       <el-form-item label="商品">
         <el-select v-model="query.sGoodsId" placeholder="全部商品" clearable filterable style="width: 180px">
-          <el-option v-for="g in goodsOptions" :key="g.sId" :label="g.sName" :value="g.sId"/>
+          <el-option v-for="g in goodsOptions" :key="g.sId" :label="`[${g.sCategory || ''}] ${g.sName} ${g.sSpec || ''}`" :value="g.sId"/>
         </el-select>
       </el-form-item>
       <el-form-item label="地点">

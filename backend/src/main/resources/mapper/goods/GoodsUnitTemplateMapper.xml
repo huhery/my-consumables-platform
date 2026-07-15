@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.basedata.goods.mapper.GoodsUnitTemplateMapper">
+
+    <resultMap id="unitTemplateResultMap" type="com.company.consumables.basedata.goods.entity.GoodsUnitTemplate">
+        <id column="S_ID" property="sId"/>
+        <result column="S_GOODS_CODE" property="sGoodsCode"/>
+        <result column="S_UNIT_NAME" property="sUnitName"/>
+        <result column="I_CONVERT_RATE" property="iConvertRate"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="unitTemplateResultMap">
+        SELECT S_ID, S_GOODS_CODE, S_UNIT_NAME, I_CONVERT_RATE
+        FROM TAB_GOODS_UNIT_TEMPLATE
+        ORDER BY S_GOODS_CODE, S_UNIT_NAME
+    </select>
+
+</mapper>

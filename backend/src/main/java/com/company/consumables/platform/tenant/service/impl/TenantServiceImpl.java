@@ -39,6 +39,8 @@ public class TenantServiceImpl implements TenantService {
     private final com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper goodsTemplateMapper;
     private final com.company.consumables.basedata.goods.mapper.GoodsMapper goodsMapper;
     private final com.company.consumables.basedata.warehouse.mapper.WarehouseMapper warehouseMapper;
+    private final com.company.consumables.basedata.goods.mapper.GoodsUnitTemplateMapper goodsUnitTemplateMapper;
+    private final com.company.consumables.basedata.goods.mapper.GoodsUnitMapper goodsUnitMapper;
 
     /**
      * 功能描述: 开通商家。校验登录名全局唯一，建租户并建初始商家管理员账号（密码 BCrypt）
@@ -111,6 +113,8 @@ public class TenantServiceImpl implements TenantService {
         String prev = com.company.consumables.common.tenant.TenantContext.getTenantId();
         com.company.consumables.common.tenant.TenantContext.setTenantId(tenantId);
         try {
+            // code → 新建的 goods ID，用于后续复制包装单位
+            java.util.Map<String, String> codeToGoodsId = new java.util.HashMap<>();
             for (com.company.consumables.basedata.goods.entity.GoodsTemplate t : templates) {
                 com.company.consumables.basedata.goods.entity.Goods goods = new com.company.consumables.basedata.goods.entity.Goods();
                 goods.setSCode(t.getSCode());
@@ -122,6 +126,23 @@ public class TenantServiceImpl implements TenantService {
                 // 显式设置租户ID（不完全依赖审计拦截器，确保正确归属）
                 goods.setSTenantId(tenantId);
                 goodsMapper.insert(goods);
+                codeToGoodsId.put(t.getSCode(), goods.getSId());
+            }
+            // 复制包装单位模板
+            java.util.List<com.company.consumables.basedata.goods.entity.GoodsUnitTemplate> unitTemplates =
+                    goodsUnitTemplateMapper.selectAll();
+            if (unitTemplates != null) {
+                for (com.company.consumables.basedata.goods.entity.GoodsUnitTemplate ut : unitTemplates) {
+                    String goodsId = codeToGoodsId.get(ut.getSGoodsCode());
+                    if (goodsId != null) {
+                        com.company.consumables.basedata.goods.entity.GoodsUnit unit = new com.company.consumables.basedata.goods.entity.GoodsUnit();
+                        unit.setSGoodsId(goodsId);
+                        unit.setSUnitName(ut.getSUnitName());
+                        unit.setIConvertRate(ut.getIConvertRate());
+                        unit.setSTenantId(tenantId);
+                        goodsUnitMapper.insert(unit);
+                    }
+                }
             }
         } finally {
             // 恢复原上下文（平台管理员操作时为空）

@@ -53,7 +53,7 @@ public class TenantSqlInterceptor implements Interceptor {
 
     /** 平台级表白名单：不参与租户隔离 */
     private static final Set<String> IGNORE_TABLES = new HashSet<>(Arrays.asList(
-            "TAB_TENANT", "TAB_ACCOUNT", "TAB_GOODS_TEMPLATE"
+            "TAB_TENANT", "TAB_ACCOUNT", "TAB_GOODS_TEMPLATE", "TAB_GOODS_UNIT_TEMPLATE"
     ));
 
     /**

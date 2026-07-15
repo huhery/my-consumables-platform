@@ -305,3 +305,18 @@ CREATE TABLE TAB_AI_CHAT_LOG (
     S_UPDATE_USER   VARCHAR(100)  NOT NULL DEFAULT '',
     PRIMARY KEY (S_ID)
 );
+
+-- ============================================================
+-- 产品模板（V6, 平台级）
+-- ============================================================
+
+DROP TABLE IF EXISTS TAB_GOODS_TEMPLATE;
+CREATE TABLE TAB_GOODS_TEMPLATE (
+    S_ID         VARCHAR(50)   NOT NULL DEFAULT '',
+    S_CODE       VARCHAR(50)   NOT NULL DEFAULT '',
+    S_CATEGORY   VARCHAR(100)  NOT NULL DEFAULT '',
+    S_NAME       VARCHAR(200)  NOT NULL DEFAULT '',
+    S_SPEC       VARCHAR(200)  NOT NULL DEFAULT '',
+    S_BASE_UNIT  VARCHAR(50)   NOT NULL DEFAULT '',
+    PRIMARY KEY (S_ID)
+);

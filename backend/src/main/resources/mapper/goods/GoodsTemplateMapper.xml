@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper">
+
+    <select id="selectAll" resultType="com.company.consumables.basedata.goods.entity.GoodsTemplate">
+        SELECT S_ID, S_CODE, S_CATEGORY, S_NAME, S_SPEC, S_BASE_UNIT
+        FROM TAB_GOODS_TEMPLATE
+        ORDER BY S_CODE
+    </select>
+
+</mapper>

@@ -34,6 +34,8 @@ public class TenantServiceImpl implements TenantService {
     private final TenantMapper tenantMapper;
     private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
+    private final com.company.consumables.basedata.goods.mapper.GoodsTemplateMapper goodsTemplateMapper;
+    private final com.company.consumables.basedata.goods.mapper.GoodsMapper goodsMapper;
 
     /**
      * 功能描述: 开通商家。校验登录名全局唯一，建租户并建初始商家管理员账号（密码 BCrypt）
@@ -72,7 +74,47 @@ public class TenantServiceImpl implements TenantService {
         account.setIStatus(TenantStatus.ENABLED.getCode());
         accountMapper.insert(account);
 
+        // 自动为新商家初始化产品目录（从平台模板复制）
+        copyGoodsTemplate(tenant.getSId());
+
         return tenant.getSId();
+    }
+
+    /**
+     * 功能描述: 从平台产品模板复制一份商品目录到新商家（自动填充租户/审计字段）
+     *
+     * @param tenantId 新商家租户ID
+     * @author honghui
+     * @date 2026/07/15 10:10
+     */
+    private void copyGoodsTemplate(String tenantId) {
+        java.util.List<com.company.consumables.basedata.goods.entity.GoodsTemplate> templates =
+                goodsTemplateMapper.selectAll();
+        if (templates == null || templates.isEmpty()) {
+            return;
+        }
+        // 临时设置租户上下文，让审计拦截器为新建商品填充正确的 S_TENANT_ID
+        String prev = com.company.consumables.common.tenant.TenantContext.getTenantId();
+        com.company.consumables.common.tenant.TenantContext.setTenantId(tenantId);
+        try {
+            for (com.company.consumables.basedata.goods.entity.GoodsTemplate t : templates) {
+                com.company.consumables.basedata.goods.entity.Goods goods = new com.company.consumables.basedata.goods.entity.Goods();
+                goods.setSCode(t.getSCode());
+                goods.setSName(t.getSName());
+                goods.setSCategory(t.getSCategory());
+                goods.setSSpec(t.getSSpec());
+                goods.setSBaseUnit(t.getSBaseUnit());
+                goods.setIStatus(1);
+                goodsMapper.insert(goods);
+            }
+        } finally {
+            // 恢复原上下文（平台管理员操作时为空）
+            if (prev != null) {
+                com.company.consumables.common.tenant.TenantContext.setTenantId(prev);
+            } else {
+                com.company.consumables.common.tenant.TenantContext.clear();
+            }
+        }
     }
 
     /**
